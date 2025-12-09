@@ -1,13 +1,32 @@
 import { app, BrowserWindow} from 'electron'
 import path from 'path'
 import { isDev } from './util.js';
+import { registerIPC } from './ipc.js';
+import { getPreloadPath } from './pathResolver.js';
 
+const createWindow = async () => {
+    const win = new BrowserWindow({
+        autoHideMenuBar: true,
+        useContentSize: true,
+        webPreferences: {
+            contextIsolation: true,
+            preload: getPreloadPath(),
+            nodeIntegration: false,
+            devTools: true,
+        },
+    });
 
-app.on('ready', () => {
-    const mainWindow = new BrowserWindow({});
     if (isDev()) {
-        mainWindow.loadURL('http://localhost:5123');
+        await win.loadURL("http://localhost:5123/");
     } else {
-        mainWindow.loadFile(path.join(app.getAppPath(), 'dist-react/index.html'));
+        await win.loadFile(path.join(__dirname, "../../dist/index.html"));
     }
+};
+
+app.whenReady().then(() => {
+    registerIPC();
+    createWindow();
+});
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") app.quit();
 });
