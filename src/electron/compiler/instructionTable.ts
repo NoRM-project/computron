@@ -35,7 +35,6 @@ instructionTable[CommandDecimal.JSR] = (cpu) => {
 
 instructionTable[CommandDecimal.RTS] = (cpu) => {
     const sp = cpu.getSP();
-    const pc = cpu.getPC();
     cpu.setSP(sp-1);
     cpu.setPC(cpu.getMemoryCell(sp))
 };
@@ -78,40 +77,77 @@ instructionTable[CommandDecimal.OUTR] = (cpu) => {
 };
 
 instructionTable[CommandDecimal.POP] = (cpu) => {
+    const sp = cpu.getSP() - 1;
+    const memorySP = cpu.getMemoryCell(sp)
+    cpu.setA(memorySP);
+    cpu.setSP(sp);
+    cpu.addToPC(1);
 };
 
 instructionTable[CommandDecimal.POPR] = (cpu) => {
-    
+    const sp = cpu.getSP() - 2;
+    const memorySPL = cpu.getMemoryCell(sp+1)
+    const memorySPH = cpu.getMemoryCell(sp)
+    cpu.setRH(memorySPH);
+    cpu.setRL(memorySPL);
+    cpu.setSP(sp);
+    cpu.addToPC(1);
 };
 
 
 instructionTable[CommandDecimal.PUSH] = (cpu) => {
-    
+    const sp = cpu.getSP();
+    const a = cpu.getA();
+    cpu.setMemoryCell(a, sp);
+    cpu.setSP(sp+1);
+    cpu.addToPC(1);
 };
 
 
 instructionTable[CommandDecimal.PUSHR] = (cpu) => {
-    
+    const sp = cpu.getSP();
+    const rh = cpu.getRH();
+    const rl = cpu.getRL();
+    cpu.setMemoryCell(sp, rh);
+    cpu.setMemoryCell(sp + 1, rl);
+    cpu.setSP(sp+2);
+    cpu.addToPC(1);
 };
 
 
 instructionTable[CommandDecimal.LDA] = (cpu) => {
-    
+    const pc = cpu.getPC();
+    const adr = cpu.getMemoryCell(pc+1);
+    const val = cpu.getMemoryCell(adr);
+    cpu.setA(val);
+    cpu.addToPC(2);
 };
 
 
 instructionTable[CommandDecimal.LDAM] = (cpu) => {
-    
+    const pc = cpu.getPC();
+    const val = cpu.getMemoryCell(pc+1);
+    cpu.setA(val);
+    cpu.addToPC(2);
 };
 
 
 instructionTable[CommandDecimal.LDAI] = (cpu) => {
-    
+    const pc = cpu.getPC();
+    const adr1 = cpu.getMemoryCell(pc+1);
+    const adr2 = cpu.getMemoryCell(adr1);
+    const val = cpu.getMemoryCell(adr2);
+    cpu.setA(val);
+    cpu.addToPC(2);
 };
 
 
 instructionTable[CommandDecimal.LDAX] = (cpu) => {
-    
+    const pc = cpu.getPC();
+    const x = cpu.getX();
+    const val = cpu.getMemoryCell(pc+1);
+    cpu.setA(val);
+    cpu.addToPC(2);
 };
 
 

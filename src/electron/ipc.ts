@@ -1,13 +1,10 @@
 import { BrowserWindow, ipcMain } from "electron";
 import { loadFile, saveFile } from "./services/fileService.js";
-// імпортимо функції і класи з файликів бекенду (із розширенням .js саме так лол)
+import { CPU } from "./compiler/cpu.js";
 
 // тут безпосередньо прописуємо як бекенд має реагувати на кожний із івентів
-
-// винести в окремий модуль
-let currentFilePath = ""
-
 export function registerIPC(win: BrowserWindow) {
+    const cpu = CPU.getInstance()
 
     // якийсьмодульбеку.setOnUpdateCallback(() => contents.send("computronUpdate", state)) - ліпше винести так аби вся ipc логіка лишилась тут і тільки тут
 
@@ -29,7 +26,7 @@ export function registerIPC(win: BrowserWindow) {
         value: number;
     }) => {
         console.log("Set register:", data.register, "value:", data.value);
-        // TODO
+        cpu.setRegister(data.value, data.register);
     });
 
 
@@ -37,16 +34,10 @@ export function registerIPC(win: BrowserWindow) {
         value: number;
     }) => {
         console.log("Set memory cell under PC to:", data.value);
-        // TODO
+        const pc = cpu.getPC();
+        cpu.setMemoryCell(data.value, pc)
     });
 
-
-    // ipcMain.on("consoleInput", (evt, data: {
-    //     value: number;
-    // }) => {
-    //     console.log("Console input:", data.value);
-        
-    // });
 
     ipcMain.handle("selectFile", async (evt, args: { path: string }) => {
         return loadFile(args.path);

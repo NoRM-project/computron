@@ -57,6 +57,10 @@ export class CPU {
         this.state.rl = val;
     }; 
 
+    setX(val: number) {
+        this.state.x = val;
+    };
+
     setRunningSignal(val: boolean) {
         this.runningSignal = val
     }
@@ -67,6 +71,18 @@ export class CPU {
 
     getSP() : number {
         return this.state.sp;
+    }
+
+    getRH(): number {
+        return this.state.rh;
+    }
+
+    getRL(): number {
+        return this.state.rl;
+    }
+
+    getX(): number {
+        return this.state.x;
     }
 
     getMemoryCell(index: number) : number {
