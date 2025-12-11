@@ -4,8 +4,10 @@ import { isDev } from './util.js';
 import { registerIPC } from './ipc.js';
 import { getPreloadPath } from './pathResolver.js';
 
+let win: BrowserWindow;
+
 const createWindow = async () => {
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         autoHideMenuBar: true,
         useContentSize: true,
         webPreferences: {
@@ -24,7 +26,7 @@ const createWindow = async () => {
 };
 
 app.whenReady().then(() => {
-    registerIPC();
+    registerIPC(win);
     createWindow();
 });
 app.on("window-all-closed", () => {
