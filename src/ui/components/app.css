@@ -1,0 +1,15 @@
+.application-body{
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    padding: var(--module-padding);
+    gap: var(--module-gap);
+    flex-wrap: wrap;
+}
+
+.container{
+    background-color: var(--white);
+    border-right: var(--border);
+    border-bottom: var(--border);
+    border-radius: var(--border-radius);
+}

@@ -1,0 +1,11 @@
+.memory-container{
+    min-width: 300px;
+    flex: 5;
+    min-height: 40vh;
+    gap: 12px;
+    padding: 12px;
+}
+
+.memory-header{
+    
+}
