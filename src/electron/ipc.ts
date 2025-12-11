@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { BrowserWindow, ipcMain } from "electron";
 import { loadFile, saveFile } from "./services/fileService.js";
 // імпортимо функції і класи з файликів бекенду (із розширенням .js саме так лол)
 
@@ -7,7 +7,7 @@ import { loadFile, saveFile } from "./services/fileService.js";
 // винести в окремий модуль
 let currentFilePath = ""
 
-export function registerIPC() {
+export function registerIPC(win: BrowserWindow) {
 
     // якийсьмодульбеку.setOnUpdateCallback(() => contents.send("computronUpdate", state)) - ліпше винести так аби вся ipc логіка лишилась тут і тільки тут
 
@@ -41,12 +41,12 @@ export function registerIPC() {
     });
 
 
-    ipcMain.on("consoleInput", (evt, data: {
-        value: number;
-    }) => {
-        console.log("Console input:", data.value);
-        // TODO
-    });
+    // ipcMain.on("consoleInput", (evt, data: {
+    //     value: number;
+    // }) => {
+    //     console.log("Console input:", data.value);
+        
+    // });
 
     ipcMain.handle("selectFile", async (evt, args: { path: string }) => {
         return loadFile(args.path);
