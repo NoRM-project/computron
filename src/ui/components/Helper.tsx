@@ -1,4 +1,3 @@
-import React from 'react'
 import './helper.css'
 
 export default function Helper() {

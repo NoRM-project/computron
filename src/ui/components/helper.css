@@ -1,3 +1,5 @@
 .helper-container{
-    min-width: 150px;
+    min-width: 155px;
+    flex: 3;
+    min-height: 40vh;
 }

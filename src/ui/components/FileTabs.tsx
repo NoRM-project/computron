@@ -1,4 +1,3 @@
-import React from 'react'
 import './filetab.css'
 
 export default function FileTabs() {

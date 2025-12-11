@@ -1,3 +1,4 @@
 .files-container{
-    flex: 1;
+    flex: 5;
+    min-width: 300px;
 }
