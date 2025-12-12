@@ -10,50 +10,6 @@ function toInt16(n: number): number {
     return (n << 16) >> 16;
 }
 
-function readRealFromMemory(cpu: CPU, addr: number): number {
-    const rl = cpu.getMemoryCell(addr) & 0xFFFF;
-    const rh = cpu.getMemoryCell(addr + 1) & 0xFFFF;
-    // combine into 32-bit unsigned int: high = rh, low = rl
-    const uint32 = (rh << 16) | rl;
-    const buf = new ArrayBuffer(4);
-    const dv = new DataView(buf);
-    dv.setUint32(0, uint32, true); // little-endian
-    return dv.getFloat32(0, true);
-}
-
-function writeRealToMemory(cpu: CPU, addr: number, val: number): void {
-    const buf = new ArrayBuffer(4);
-    const dv = new DataView(buf);
-    dv.setFloat32(0, val, true);
-    const uint32 = dv.getUint32(0, true);
-    const rl = uint32 & 0xFFFF;
-    const rh = (uint32 >>> 16) & 0xFFFF;
-    cpu.setMemoryCell(rl, addr);
-    cpu.setMemoryCell(rh, addr + 1);
-}
-
-function getRAsFloat(cpu: CPU): number {
-    const rl = cpu.getRL() & 0xFFFF;
-    const rh = cpu.getRH() & 0xFFFF;
-    const uint32 = (rh << 16) | rl;
-    const buf = new ArrayBuffer(4);
-    const dv = new DataView(buf);
-    dv.setUint32(0, uint32, true);
-    return dv.getFloat32(0, true);
-}
-
-function setRFromFloat(cpu: CPU, val: number): void {
-    const buf = new ArrayBuffer(4);
-    const dv = new DataView(buf);
-    dv.setFloat32(0, val, true);
-    const uint32 = dv.getUint32(0, true);
-    const rl = uint32 & 0xFFFF;
-    const rh = (uint32 >>> 16) & 0xFFFF;
-    cpu.setRL(rl);
-    cpu.setRH(rh);
-}
-
-
 // 0: NOP
 instructionTable[CommandDecimal.NOP] = (cpu) => {
     cpu.addToPC(1);
@@ -103,7 +59,6 @@ instructionTable[CommandDecimal.EXIT] = (cpu) => {
 instructionTable[CommandDecimal.INPC] = async (cpu) => {
     const reqHandler = RequestHandler.getInstance();
     const val = await reqHandler.requestInputFromFrontend();
-    const inp = val.toString()
     cpu.setA(val);
     cpu.addToPC(1);
 };
@@ -121,7 +76,7 @@ instructionTable[CommandDecimal.INPR] = async (cpu) => {
     const reqHandler = RequestHandler.getInstance();
     const inp = await reqHandler.requestInputFromFrontend();
     // Expect inp to be a floating-point number (JS number)
-    setRFromFloat(cpu, inp);
+    cpu.setRFromFloat(inp);
     cpu.addToPC(1);
 };
 
@@ -145,7 +100,7 @@ instructionTable[CommandDecimal.OUT] = (cpu) => {
 // 11: OUTR display_floating_point_value_in (R); PC := PC + 1;
 instructionTable[CommandDecimal.OUTR] = (cpu) => {
     const requestHandler = RequestHandler.getInstance();
-    const val = getRAsFloat(cpu);
+    const val = cpu.getRAsFloat();
     requestHandler.sendOutputToFrontend(String(val));
     cpu.addToPC(1);
 };
@@ -164,11 +119,7 @@ instructionTable[CommandDecimal.POP] = (cpu) => {
 instructionTable[CommandDecimal.POPR] = (cpu) => {
     let sp = cpu.getSP();
     sp = sp - 2;
-    const memoryRL = cpu.getMemoryCell(sp);
-    const memoryRH = cpu.getMemoryCell(sp + 1);
-    // manual: R := (M[SP], M[SP + 1]) -> RL at SP, RH at SP+1
-    cpu.setRL(memoryRL);
-    cpu.setRH(memoryRH);
+    cpu.readRealFromMemory(sp);
     cpu.setSP(sp);
     cpu.addToPC(1);
 };
@@ -177,7 +128,6 @@ instructionTable[CommandDecimal.POPR] = (cpu) => {
 instructionTable[CommandDecimal.PUSH] = (cpu) => {
     const sp = cpu.getSP();
     const a = cpu.getA();
-    // setMemoryCell(val, index)
     cpu.setMemoryCell(a, sp);
     cpu.setSP(sp + 1);
     cpu.addToPC(1);
@@ -188,7 +138,6 @@ instructionTable[CommandDecimal.PUSHR] = (cpu) => {
     const sp = cpu.getSP();
     const rh = cpu.getRH();
     const rl = cpu.getRL();
-    // store RL at M[sp], RH at M[sp+1]
     cpu.setMemoryCell(rl, sp);
     cpu.setMemoryCell(rh, sp + 1);
     cpu.setSP(sp + 2);
@@ -237,10 +186,7 @@ instructionTable[CommandDecimal.LDAX] = (cpu) => {
 instructionTable[CommandDecimal.LDR] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
-    const rl = cpu.getMemoryCell(adr);
-    const rh = cpu.getMemoryCell(adr + 1);
-    cpu.setRL(rl);
-    cpu.setRH(rh);
+    cpu.readRealFromMemory(adr);
     cpu.addToPC(2);
 };
 
@@ -249,10 +195,7 @@ instructionTable[CommandDecimal.LDRI] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
     const addrIndirect = cpu.getMemoryCell(adr);
-    const rl = cpu.getMemoryCell(addrIndirect);
-    const rh = cpu.getMemoryCell(addrIndirect + 1);
-    cpu.setRL(rl);
-    cpu.setRH(rh);
+    cpu.readRealFromMemory(addrIndirect);
     cpu.addToPC(2);
 };
 
@@ -278,9 +221,7 @@ instructionTable[CommandDecimal.STAR] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
     const target = cpu.getMemoryCell(adr);
-    // store RL to target, RH to target+1
-    cpu.setMemoryCell(cpu.getRL(), target);
-    cpu.setMemoryCell(cpu.getRH(), target + 1);
+    cpu.writeRealToMemory(target, cpu.getRAsFloat());
     cpu.addToPC(2);
 };
 
@@ -414,8 +355,8 @@ instructionTable[CommandDecimal.NER] = (cpu) => {
 instructionTable[CommandDecimal.LTR] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
-    const memReal = readRealFromMemory(cpu, adr);
-    const rVal = getRAsFloat(cpu);
+    const memReal = cpu.readRealFromMemory(adr);
+    const rVal = cpu.getRAsFloat();
     cpu.setA(rVal < memReal ? 1 : 0);
     cpu.addToPC(2);
 };
@@ -424,8 +365,8 @@ instructionTable[CommandDecimal.LTR] = (cpu) => {
 instructionTable[CommandDecimal.LER] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
-    const memReal = readRealFromMemory(cpu, adr);
-    const rVal = getRAsFloat(cpu);
+    const memReal = cpu.readRealFromMemory(adr);
+    const rVal = cpu.getRAsFloat();
     cpu.setA(rVal <= memReal ? 1 : 0);
     cpu.addToPC(2);
 };
@@ -434,8 +375,8 @@ instructionTable[CommandDecimal.LER] = (cpu) => {
 instructionTable[CommandDecimal.GTR] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
-    const memReal = readRealFromMemory(cpu, adr);
-    const rVal = getRAsFloat(cpu);
+    const memReal = cpu.readRealFromMemory(adr);
+    const rVal = cpu.getRAsFloat();
     cpu.setA(rVal > memReal ? 1 : 0);
     cpu.addToPC(2);
 };
@@ -444,8 +385,8 @@ instructionTable[CommandDecimal.GTR] = (cpu) => {
 instructionTable[CommandDecimal.GER] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
-    const memReal = readRealFromMemory(cpu, adr);
-    const rVal = getRAsFloat(cpu);
+    const memReal = cpu.readRealFromMemory(adr);
+    const rVal = cpu.getRAsFloat();
     cpu.setA(rVal >= memReal ? 1 : 0);
     cpu.addToPC(2);
 };
@@ -518,9 +459,9 @@ instructionTable[CommandDecimal.NEG] = (cpu) => {
 instructionTable[CommandDecimal.ADDR] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
-    const memReal = readRealFromMemory(cpu, adr);
-    const rVal = getRAsFloat(cpu);
-    setRFromFloat(cpu, rVal + memReal);
+    const memReal = cpu.readRealFromMemory(adr);
+    const rVal = cpu.getRAsFloat();
+    cpu.setRFromFloat(rVal + memReal);
     cpu.addToPC(2);
 };
 
@@ -528,9 +469,9 @@ instructionTable[CommandDecimal.ADDR] = (cpu) => {
 instructionTable[CommandDecimal.SUBR] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
-    const memReal = readRealFromMemory(cpu, adr);
-    const rVal = getRAsFloat(cpu);
-    setRFromFloat(cpu, rVal - memReal);
+    const memReal = cpu.readRealFromMemory(adr);
+    const rVal = cpu.getRAsFloat();
+    cpu.setRFromFloat(rVal - memReal);
     cpu.addToPC(2);
 };
 
@@ -538,9 +479,9 @@ instructionTable[CommandDecimal.SUBR] = (cpu) => {
 instructionTable[CommandDecimal.MULR] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
-    const memReal = readRealFromMemory(cpu, adr);
-    const rVal = getRAsFloat(cpu);
-    setRFromFloat(cpu, rVal * memReal);
+    const memReal = cpu.readRealFromMemory(adr);
+    const rVal = cpu.getRAsFloat();
+    cpu.setRFromFloat(rVal * memReal);
     cpu.addToPC(2);
 };
 
@@ -548,16 +489,16 @@ instructionTable[CommandDecimal.MULR] = (cpu) => {
 instructionTable[CommandDecimal.DIVR] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
-    const memReal = readRealFromMemory(cpu, adr);
+    const memReal = cpu.readRealFromMemory(adr);
     if (memReal === 0) throw new Error("Real division by zero");
-    const rVal = getRAsFloat(cpu);
-    setRFromFloat(cpu, rVal / memReal);
+    const rVal = cpu.getRAsFloat();
+    cpu.setRFromFloat(rVal / memReal);
     cpu.addToPC(2);
 };
 
 // 55: NEGR R := - R; PC := PC + 1;
 instructionTable[CommandDecimal.NEGR] = (cpu) => {
-    const rVal = getRAsFloat(cpu);
-    setRFromFloat(cpu, -rVal);
+    const rVal = cpu.getRAsFloat();
+    cpu.setRFromFloat(-rVal);
     cpu.addToPC(1);
 };
