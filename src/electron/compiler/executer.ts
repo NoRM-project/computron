@@ -1,9 +1,10 @@
+import { RequestHandler } from "../requestHandler.js";
 import { CPU } from "./cpu.js";
 import { instructionTable } from "./instructionTable.js";
 
 export default function run(cpu: CPU) {
     let isProgRunning: boolean = true;
-    while(isProgRunning) {
+    for (let i = 0; i < Number.MAX_VALUE; i++) {
         const pc = cpu.getPC()
         const commandCode = cpu.getMemoryCell(pc)
         const handler = instructionTable[commandCode];
@@ -13,4 +14,6 @@ export default function run(cpu: CPU) {
 
         handler(cpu); 
     }
+    const requestHandler = RequestHandler.getInstance();
+    requestHandler.sendComputronUpdate(cpu.getState());
 }

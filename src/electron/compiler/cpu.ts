@@ -21,6 +21,10 @@ export class CPU {
         return CPU.instance;
     }
 
+    getState() : ComputronState {
+        return this.state;
+    }
+
     readRealFromMemory(addr: number): number {
         const uint32 = (this.state.rh << 16) | this.state.rl;
         const buf = new ArrayBuffer(4);
