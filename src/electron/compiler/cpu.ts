@@ -7,7 +7,7 @@ export class CPU {
         x: 0,
         rh: 0,
         rl: 0,
-        memory: new Array(),
+        memory: new Array<number>(),
     };
     private runningSignal: boolean = false;
     private newInput: string = "";
@@ -63,6 +63,10 @@ export class CPU {
 
     setRunningSignal(val: boolean) {
         this.runningSignal = val
+    }
+
+    setMemory(val: Array<number>) {
+        this.state.memory = val
     }
 
     getA() : number {

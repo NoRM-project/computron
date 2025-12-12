@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain } from "electron";
 import { loadFile, saveFile } from "./services/fileService.js";
 import { CPU } from "./compiler/cpu.js";
 import run from "./compiler/executer.js";
+import { parseProgram } from "./parser/parser.js";
 
 // тут безпосередньо прописуємо як бекенд має реагувати на кожний із івентів
 export function registerIPC(win: BrowserWindow) {
@@ -14,7 +15,10 @@ export function registerIPC(win: BrowserWindow) {
         plaintextCode: string;
         runAfterCompilation: boolean;  // Та, ви все правильно розумієте, ці типи прописуються окремо в трьох місцях, гарного дня, (#electron_typescript_<3_<3_<3)
     }) => {
-        // TODO
+        parseProgram(data.plaintextCode, cpu);
+        if (data.runAfterCompilation) {
+            run(cpu);
+        }
     });
 
     ipcMain.on("run", (evt) => {

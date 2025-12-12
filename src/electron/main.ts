@@ -3,6 +3,7 @@ import path from 'path'
 import { isDev } from './util.js';
 import { registerIPC } from './ipc.js';
 import { getPreloadPath } from './pathResolver.js';
+import { RequestHandler } from './requestHandler.js';
 
 let win: BrowserWindow;
 
@@ -17,6 +18,7 @@ const createWindow = async () => {
             devTools: true,
         },
     });
+    RequestHandler.getInstance().setWindow(win);
 
     if (isDev()) {
         await win.loadURL("http://localhost:5123/");
