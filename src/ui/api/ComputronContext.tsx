@@ -5,10 +5,11 @@ type ConsoleData = {
     value: number;
 };
 
-type File = {
-    path: string;
-    content: string;
-}
+// type File = {
+//     path: string;
+//     name: string;
+//     content: string;
+// }
 
 // До цього обєкту ви матимете доступ з будь якого компоненту, для використання достаньо використати хук на useComputron() 
 // Приклад: const { state, compile, run, consoleOutput } = useComputron();
@@ -24,9 +25,8 @@ type ComputronContextType = {
     cleanConsole: () => void;
     // передати ввід з консолі
     consoleInput: (value: number) => void;
-    //
+    // змінна яка визначає чи потрібен ввід в консоль
     inputRequested: boolean;
-    //TODO
 
     // Files -------------------------------------------
     // скомпілювати (опціонально ранити) актуальний файл
@@ -59,10 +59,12 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         const unsubscribeConsole = window.electronAPI.onConsoleOutput((value) => {
             setConsoleOutput(prev => [...prev, { type: 'out', value }]);
         });
+        const unsubscribeInput = window.electronAPI.onRequestInput(() => setInputRequested(true));
 
         return () => {
             unsubscribeUpdate();
             unsubscribeConsole();
+            unsubscribeInput();
         };
     }, []);
 
@@ -75,7 +77,10 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         run: window.electronAPI.run,
         setRegister: window.electronAPI.setRegister,
         setMemoryCell: window.electronAPI.setMemoryCell,
-        consoleInput: window.electronAPI.consoleInput,
+        consoleInput: (value:number)=>{
+            setInputRequested(false);
+            window.electronAPI.consoleInput(value);
+        },
     };
 
     return <ComputronContext.Provider value={value}>{children}</ComputronContext.Provider>;
