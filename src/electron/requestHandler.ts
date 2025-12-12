@@ -29,25 +29,21 @@ export class RequestHandler {
                 fn();
                 clearTimeout(timer);
                 ipcMain.removeListener("inputResponse", onResponse);
-            };
+            }
 
             const onResponse = (evt: Electron.IpcMainEvent, data: { value: number }) => {
                 if (typeof data?.value !== "number") {
                     return finish(() => reject(new Error("Invalid input value")));
                 }
                 finish(() => resolve(data.value));
-            };
+            }
 
-            // надсилаємо запит фронту
+            // надсилаємо запит фронту з усіма перевірками (!)
             this.win.webContents.send("requestInput");
             ipcMain.once("inputResponse", onResponse);
-
-            // таймаут, якщо фронт не відповів
             const timer = setTimeout(() => {
                 finish(() => reject(new Error("Frontend input timeout")));
             }, TIMEOUT_MS);
-
-            // очистка у будь-якому випадку
             const cleanup = () => clearTimeout(timer);
             finish(() => cleanup());
         });
@@ -58,7 +54,15 @@ export class RequestHandler {
             throw new Error("No browser window present");
         }
 
-        this.win?.webContents.send(val)
+        this.win?.webContents.postMessage("consoleOutput", val);
+    }
+
+    sendComputronUpdate(newState: ComputronState) {
+        if (!this.win) {
+            throw new Error("No browser window present");
+        }
+
+        this.win?.webContents.postMessage("computronUpdate", newState);
     }
 
     setWindow(win: BrowserWindow) {
