@@ -1,8 +1,9 @@
 import React from "react";
 
-type RegisterBitProps = {
+type BitProps = {
     color: "red" | "blue" | "orange" | "green";
     turnedOn: boolean;
+    onClick: () => void;
 };
 
 const GRADIENTS = {
@@ -24,12 +25,12 @@ const GRADIENTS = {
     }
 } as const;
 
-const RegisterBit: React.FC<RegisterBitProps> = ({ color, turnedOn }) => {
+const Bit: React.FC<BitProps> = ({ color, turnedOn, onClick }) => {
     const state = turnedOn ? "on" : "off";
     const { c1, c2 } = GRADIENTS[color][state];
 
     return (
-        <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg onClick={onClick} width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="23" height="23" fill="url(#paint0_radial_110_1455)"/>
             <defs>
                 <radialGradient id="paint0_radial_110_1455" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(11.5 11.5) rotate(90) scale(11.5)">
@@ -41,4 +42,4 @@ const RegisterBit: React.FC<RegisterBitProps> = ({ color, turnedOn }) => {
     );
 };
 
-export default RegisterBit;
+export default Bit;

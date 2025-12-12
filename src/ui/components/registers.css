@@ -1,5 +1,12 @@
 .registers-container{
-    
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-bottom: 15px;
+}
+
+.registers-header {
+    padding: 10px 6px 10px 6px;
 }
 
 .register-tab-list {
@@ -18,8 +25,16 @@
     font: inherit;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
+    background: var(--buttons-monotone-color);
+    color: var(--white);
 }
 
 .register-tab-selected {
-    color: var(--white)
+    background: var(--white);
+    color: var(--text-dark)
+}
+
+.word-selector {
+    justify-content: space-between;
+    display: flex;
 }
