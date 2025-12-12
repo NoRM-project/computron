@@ -21,6 +21,44 @@ export class CPU {
         return CPU.instance;
     }
 
+    readRealFromMemory(addr: number): number {
+        const uint32 = (this.state.rh << 16) | this.state.rl;
+        const buf = new ArrayBuffer(4);
+        const dv = new DataView(buf);
+        dv.setUint32(0, uint32, true); // little-endian
+        return dv.getFloat32(0, true);
+    }
+    
+    writeRealToMemory(addr: number, val: number): void {
+        const buf = new ArrayBuffer(4);
+        const dv = new DataView(buf);
+        dv.setFloat32(0, val, true);
+        const uint32 = dv.getUint32(0, true);
+        const rl = uint32 & 0xFFFF;
+        const rh = (uint32 >>> 16) & 0xFFFF;
+        this.state.memory[addr] = rl;
+        this.state.memory[addr + 1] = rh;
+    }
+    
+    getRAsFloat(): number {
+        const uint32 = (this.state.rh << 16) | this.state.rl;
+        const buf = new ArrayBuffer(4);
+        const dv = new DataView(buf);
+        dv.setUint32(0, uint32, true);
+        return dv.getFloat32(0, true);
+    }
+    
+    setRFromFloat(val: number): void {
+        const buf = new ArrayBuffer(4);
+        const dv = new DataView(buf);
+        dv.setFloat32(0, val, true);
+        const uint32 = dv.getUint32(0, true);
+        const rl = uint32 & 0xFFFF;
+        const rh = (uint32 >>> 16) & 0xFFFF;
+        this.state.rl = rl;
+        this.state.rh = rh;
+    }
+
     setRegister(val: number, reg: Register) {
         this.state[reg] = val;
     };
