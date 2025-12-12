@@ -1,6 +1,7 @@
 import { BrowserWindow, ipcMain } from "electron";
 import { loadFile, saveFile } from "./services/fileService.js";
 import { CPU } from "./compiler/cpu.js";
+import run from "./compiler/executer.js";
 
 // тут безпосередньо прописуємо як бекенд має реагувати на кожний із івентів
 export function registerIPC(win: BrowserWindow) {
@@ -18,7 +19,7 @@ export function registerIPC(win: BrowserWindow) {
 
     ipcMain.on("run", (evt) => {
         console.log("Run program");
-        // TODO
+        run(cpu);
     });
 
     ipcMain.on("setRegister", (evt, data: {

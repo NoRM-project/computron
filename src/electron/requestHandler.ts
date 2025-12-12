@@ -40,8 +40,6 @@ export class RequestHandler {
 
             // надсилаємо запит фронту
             this.win.webContents.send("requestInput");
-
-            // ставимо ОДИН listener
             ipcMain.once("inputResponse", onResponse);
 
             // таймаут, якщо фронт не відповів
@@ -53,6 +51,14 @@ export class RequestHandler {
             const cleanup = () => clearTimeout(timer);
             finish(() => cleanup());
         });
+    }
+
+    sendOutputToFrontend(val: string) {
+        if (!this.win) {
+            throw new Error("No browser window present");
+        }
+
+        this.win?.webContents.send(val)
     }
 
     setWindow(win: BrowserWindow) {
