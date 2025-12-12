@@ -32,8 +32,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
         return () => ipcRenderer.removeListener("computronUpdate", handler);
     },
     // аутпут, який має бути виведений в консоль
-    onConsoleOutput: (cb: (value: number) => void) => {
-        const handler = (_: any, value: number) => cb(value);
+    onConsoleOutput: (cb: (value: string) => void) => {
+        const handler = (_: any, value: string) => cb(value);
         ipcRenderer.on("consoleOutput", handler);
         return () => ipcRenderer.removeListener("consoleOutput", handler);
     },

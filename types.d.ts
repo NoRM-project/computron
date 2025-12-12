@@ -29,7 +29,7 @@ interface Window {
         selectFile(path: string): SelectFileResult;
         saveFile(newContent: string): FileSavingResult;
         onComputronUpdate(cb: (state: ComputronState) => void): () => void;
-        onConsoleOutput(cb: (value: number) => void): () => void;
+        onConsoleOutput(cb: (value: string) => void): () => void;
         onRequestInput(cb: (value: number) => void): () => void;
     }
 }
