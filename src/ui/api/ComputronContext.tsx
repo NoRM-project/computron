@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 type ConsoleData = {
     type: 'in' | 'out';
-    value: number;
+    value: string;
 };
 
 type File = {
