@@ -1,32 +1,38 @@
 import fs from "fs";
 
-let currentFilePath = "";
 
-export function setCurrentFilePath(path: string) {
-    currentFilePath = path;
-}
-
-export function getCurrentFilePath() {
-    return currentFilePath;
-}
-
-export function loadFile(path: string): SelectFileResult {
+export function loadTextFile(path: string): FileResult<string> {
     try {
-        const content = fs.readFileSync(path, "utf8");
-        currentFilePath = path;
-        return { success: true, content };
+        const data = fs.readFileSync(path, "utf8");
+        return { success: true, data };
     } catch (err) {
-        console.error(err);
-        return { success: false };
+        return { success: false, error: String(err) };
     }
 }
 
-export function saveFile(newContent: string): { success: boolean } {
+export function saveTextFile(path: string, content: string): FileResult<void> {
     try {
-        fs.writeFileSync(currentFilePath, newContent);
-        return { success: true };
+        fs.writeFileSync(path, content, "utf8");
+        return { success: true, data: undefined };
     } catch (err) {
-        console.error(err);
-        return { success: false };
+        return { success: false, error: String(err) };
+    }
+}
+
+export function loadBinaryFile(path: string): FileResult<Buffer> {
+    try {
+        const data = fs.readFileSync(path);
+        return { success: true, data };
+    } catch (err) {
+        return { success: false, error: String(err) };
+    }
+}
+
+export function saveBinaryFile(path: string, buffer: Buffer): FileResult<void> {
+    try {
+        fs.writeFileSync(path, buffer);
+        return { success: true, data: undefined };
+    } catch (err) {
+        return { success: false, error: String(err) };
     }
 }

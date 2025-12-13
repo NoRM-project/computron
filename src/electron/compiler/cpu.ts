@@ -1,4 +1,5 @@
 import { RequestHandler } from "../requestHandler.js";
+import {loadBinaryFile, saveBinaryFile} from "../services/fileService.js";
 
 export class CPU {
     private static instance: CPU | null = null;
@@ -78,7 +79,7 @@ export class CPU {
     };
 
     addToPC(val: number) {
-        this.state.pc =+ val;
+        this.state.pc += val;
     };
 
     setPC(val: number) {
@@ -147,5 +148,44 @@ export class CPU {
 
     getRunningSignal(): boolean {
         return this.runningSignal;
+    };
+
+    loadRamFromFile(path: string): FileResult<void> {
+        const result = loadBinaryFile(path);
+        if (!result.success) return result;
+
+        const buffer = result.data;
+
+        if (buffer.byteLength % 2 !== 0) {
+            return { success: false, error: "Invalid RAM file size" };
+        }
+
+        const view = new DataView(
+            buffer.buffer,
+            buffer.byteOffset,
+            buffer.byteLength
+        );
+
+        const mem: number[] = [];
+
+        for (let i = 0; i < buffer.byteLength; i += 2) {
+            mem.push(view.getUint16(i, true));
+        }
+
+        this.state.memory = mem;
+        return { success: true, data: undefined };
+    }
+
+    saveRamToFile(path: string): FileResult<void> {
+        const mem = this.state.memory;
+
+        const buffer = new ArrayBuffer(mem.length * 2);
+        const view = new DataView(buffer);
+
+        for (let i = 0; i < mem.length; i++) {
+            view.setUint16(i * 2, mem[i] & 0xffff, true);
+        }
+
+        return saveBinaryFile(path, Buffer.from(buffer));
     }
 }
