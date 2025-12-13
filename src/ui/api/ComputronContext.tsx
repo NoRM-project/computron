@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 type ConsoleData = {
     type: 'in' | 'out';
-    value: number;
+    value: string;
 };
 
 // type File = {
@@ -47,6 +47,12 @@ type ComputronContextType = {
 const ComputronContext = createContext<ComputronContextType | undefined>(undefined);
 
 export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+
+    const handleComputronUpdate = (value: ComputronState) => {
+        console.log(value);
+        setState(value);
+    }
+
     const [state, setState] = useState<ComputronState | null>(null);
     const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
     const [inputRequested, setInputRequested] = useState<boolean>(false);
@@ -55,7 +61,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     const cleanConsole = () => setConsoleOutput([]);
 
     useEffect(() => {
-        const unsubscribeUpdate = window.electronAPI.onComputronUpdate(setState);
+        const unsubscribeUpdate = window.electronAPI.onComputronUpdate(handleComputronUpdate);
         const unsubscribeConsole = window.electronAPI.onConsoleOutput((value) => {
             setConsoleOutput(prev => [...prev, { type: 'out', value }]);
         });

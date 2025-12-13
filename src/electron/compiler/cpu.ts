@@ -1,3 +1,6 @@
+import { RequestHandler } from "../requestHandler.js";
+import {loadBinaryFile, saveBinaryFile} from "../services/fileService.js";
+
 export class CPU {
     private static instance: CPU | null = null;
     private state: ComputronState = {
@@ -7,7 +10,7 @@ export class CPU {
         x: 0,
         rh: 0,
         rl: 0,
-        memory: new Array(),
+        memory: new Array<number>(),
     };
     private runningSignal: boolean = false;
     private newInput: string = "";
@@ -21,16 +24,62 @@ export class CPU {
         return CPU.instance;
     }
 
+    getState() : ComputronState {
+        return this.state;
+    }
+
+    readRealFromMemory(addr: number): number {
+        const uint32 = (this.state.rh << 16) | this.state.rl;
+        const buf = new ArrayBuffer(4);
+        const dv = new DataView(buf);
+        dv.setUint32(0, uint32, true); // little-endian
+        return dv.getFloat32(0, true);
+    }
+    
+    writeRealToMemory(addr: number, val: number): void {
+        const buf = new ArrayBuffer(4);
+        const dv = new DataView(buf);
+        dv.setFloat32(0, val, true);
+        const uint32 = dv.getUint32(0, true);
+        const rl = uint32 & 0xFFFF;
+        const rh = (uint32 >>> 16) & 0xFFFF;
+        this.state.memory[addr] = rl;
+        this.state.memory[addr + 1] = rh;
+    }
+    
+    getRAsFloat(): number {
+        const uint32 = (this.state.rh << 16) | this.state.rl;
+        const buf = new ArrayBuffer(4);
+        const dv = new DataView(buf);
+        dv.setUint32(0, uint32, true);
+        return dv.getFloat32(0, true);
+    }
+    
+    setRFromFloat(val: number): void {
+        const buf = new ArrayBuffer(4);
+        const dv = new DataView(buf);
+        dv.setFloat32(0, val, true);
+        const uint32 = dv.getUint32(0, true);
+        const rl = uint32 & 0xFFFF;
+        const rh = (uint32 >>> 16) & 0xFFFF;
+        this.state.rl = rl;
+        this.state.rh = rh;
+    }
+
     setRegister(val: number, reg: Register) {
         this.state[reg] = val;
+        const reqHandler = RequestHandler.getInstance();
+        reqHandler.sendComputronUpdate(this.state);
     };
 
     setMemoryCell(val: number, index: number) {
         this.state.memory[index] = val;
+        const reqHandler = RequestHandler.getInstance();
+        reqHandler.sendComputronUpdate(this.state);
     };
 
     addToPC(val: number) {
-        this.state.pc =+ val;
+        this.state.pc += val;
     };
 
     setPC(val: number) {
@@ -57,8 +106,16 @@ export class CPU {
         this.state.rl = val;
     }; 
 
+    setX(val: number) {
+        this.state.x = val;
+    };
+
     setRunningSignal(val: boolean) {
         this.runningSignal = val
+    }
+
+    setMemory(val: Array<number>) {
+        this.state.memory = val
     }
 
     getA() : number {
@@ -67,6 +124,18 @@ export class CPU {
 
     getSP() : number {
         return this.state.sp;
+    }
+
+    getRH(): number {
+        return this.state.rh;
+    }
+
+    getRL(): number {
+        return this.state.rl;
+    }
+
+    getX(): number {
+        return this.state.x;
     }
 
     getMemoryCell(index: number) : number {
@@ -79,5 +148,44 @@ export class CPU {
 
     getRunningSignal(): boolean {
         return this.runningSignal;
+    };
+
+    loadRamFromFile(path: string): FileResult<void> {
+        const result = loadBinaryFile(path);
+        if (!result.success) return result;
+
+        const buffer = result.data;
+
+        if (buffer.byteLength % 2 !== 0) {
+            return { success: false, error: "Invalid RAM file size" };
+        }
+
+        const view = new DataView(
+            buffer.buffer,
+            buffer.byteOffset,
+            buffer.byteLength
+        );
+
+        const mem: number[] = [];
+
+        for (let i = 0; i < buffer.byteLength; i += 2) {
+            mem.push(view.getUint16(i, true));
+        }
+
+        this.state.memory = mem;
+        return { success: true, data: undefined };
+    }
+
+    saveRamToFile(path: string): FileResult<void> {
+        const mem = this.state.memory;
+
+        const buffer = new ArrayBuffer(mem.length * 2);
+        const view = new DataView(buffer);
+
+        for (let i = 0; i < mem.length; i++) {
+            view.setUint16(i * 2, mem[i] & 0xffff, true);
+        }
+
+        return saveBinaryFile(path, Buffer.from(buffer));
     }
 }

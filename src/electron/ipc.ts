@@ -1,13 +1,12 @@
 import { BrowserWindow, ipcMain } from "electron";
-import { loadFile, saveFile } from "./services/fileService.js";
-// імпортимо функції і класи з файликів бекенду (із розширенням .js саме так лол)
+import { loadTextFile, saveTextFile } from "./services/fileService.js";
+import { CPU } from "./compiler/cpu.js";
+import run from "./compiler/executer.js";
+import { parseProgram } from "./parser/parser.js";
 
 // тут безпосередньо прописуємо як бекенд має реагувати на кожний із івентів
-
-// винести в окремий модуль
-let currentFilePath = ""
-
 export function registerIPC(win: BrowserWindow) {
+    const cpu = CPU.getInstance()
 
     // якийсьмодульбеку.setOnUpdateCallback(() => contents.send("computronUpdate", state)) - ліпше винести так аби вся ipc логіка лишилась тут і тільки тут
 
@@ -16,12 +15,15 @@ export function registerIPC(win: BrowserWindow) {
         plaintextCode: string;
         runAfterCompilation: boolean;  // Та, ви все правильно розумієте, ці типи прописуються окремо в трьох місцях, гарного дня, (#electron_typescript_<3_<3_<3)
     }) => {
-        // TODO
+        parseProgram(data.plaintextCode, cpu);
+        if (data.runAfterCompilation) {
+            run(cpu);
+        }
     });
 
     ipcMain.on("run", (evt) => {
         console.log("Run program");
-        // TODO
+        run(cpu);
     });
 
     ipcMain.on("setRegister", (evt, data: {
@@ -29,7 +31,7 @@ export function registerIPC(win: BrowserWindow) {
         value: number;
     }) => {
         console.log("Set register:", data.register, "value:", data.value);
-        // TODO
+        cpu.setRegister(data.value, data.register);
     });
 
 
@@ -37,22 +39,23 @@ export function registerIPC(win: BrowserWindow) {
         value: number;
     }) => {
         console.log("Set memory cell under PC to:", data.value);
-        // TODO
+        const pc = cpu.getPC();
+        cpu.setMemoryCell(data.value, pc)
     });
 
+    ipcMain.handle("loadRamFromFile", async (evt, args: { path: string }) => {
+        cpu.loadRamFromFile(args.path);
+    });
 
-    // ipcMain.on("consoleInput", (evt, data: {
-    //     value: number;
-    // }) => {
-    //     console.log("Console input:", data.value);
-        
-    // });
+    ipcMain.handle("saveRamToFile", async (evt, args: { path: string }) => {
+        cpu.saveRamToFile(args.path);
+    });
 
     ipcMain.handle("selectFile", async (evt, args: { path: string }) => {
-        return loadFile(args.path);
+        return loadTextFile(args.path);
     });
 
-    ipcMain.handle("saveFile", async (evt, args: { newContent: string }) => {
-        return saveFile(args.newContent);
+    ipcMain.handle("saveFile", async (evt, args: { path: string, newContent: string }) => {
+        return saveTextFile(args.path, args.newContent);
     });
 }

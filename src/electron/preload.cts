@@ -20,8 +20,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     
     // інвоук означає що ми чекаємо на відповідь хендлера і результат який він нам верне. В даному випадку успіх/неуспіх і зміст файлу
     selectFile: (path: string) => ipcRenderer.invoke("selectFile", {path}), // тут параметри залежать від того чи хочете ви таби. Один із параметрів точно path вибраного файлу. Як ретурн успіх/неуспіх і контент файлу
-    saveFile: (newContent: string) => ipcRenderer.invoke("saveFile", {newContent}), // зберегти файл з яким ми моментально працюємо. Ретурн це успіх/неуспіх. Наполягаю не робити таби аби не ускладнювати
+    saveFile: (path: string, newContent: string) => ipcRenderer.invoke("saveFile", {path, newContent}), // зберегти файл з яким ми моментально працюємо. Ретурн це успіх/неуспіх. Наполягаю не робити таби аби не ускладнювати
 
+    loadRamFromFile: (path: string) => ipcRenderer.invoke("loadRamFromFile", {path}), // завантажити пам'ять з файлу
+    saveRamToFile: (path: string) => ipcRenderer.invoke("saveRamToFile", {path}), // зберегти пам'ять в файл
 
     // Як це працює:
     // onComputronUpdate є фактично сеттером колбек функції яка запуститься коли в ipc виникне івент computronUpdate, тобто коли десь запуститься ipcRenderer.send("computronUpdate", {state})
@@ -32,8 +34,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
         return () => ipcRenderer.removeListener("computronUpdate", handler);
     },
     // аутпут, який має бути виведений в консоль
-    onConsoleOutput: (cb: (value: number) => void) => {
-        const handler = (_: any, value: number) => cb(value);
+    onConsoleOutput: (cb: (value: string) => void) => {
+        const handler = (_: any, value: string) => cb(value);
         ipcRenderer.on("consoleOutput", handler);
         return () => ipcRenderer.removeListener("consoleOutput", handler);
     },
