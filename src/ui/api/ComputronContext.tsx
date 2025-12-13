@@ -54,6 +54,19 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     }
 
     const [state, setState] = useState<ComputronState | null>(null);
+
+    useEffect(() => {
+        let alive = true;
+
+        (async () => {
+            const initial = await window.electronAPI.getInitialComputronState();
+            if (alive) setState(initial);
+            console.log(initial);
+        })();
+
+        return () => { alive = false; };
+    }, []);
+
     const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
     const [inputRequested, setInputRequested] = useState<boolean>(false);
 

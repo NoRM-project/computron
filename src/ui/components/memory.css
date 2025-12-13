@@ -5,6 +5,8 @@
     gap: 12px;
     /*padding: 12px;*/
     background: var(--memory-gradient);
+    display: flex;
+    flex-direction: column;
 }
 
 .memory-header{

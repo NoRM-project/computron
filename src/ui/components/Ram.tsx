@@ -2,7 +2,7 @@ import { useComputron } from "../api/ComputronContext";
 import svgIcons from "./assets/svgs.ts";
 import "./ram.css";
 
-const ROWS = 16;
+// const ROWS = 8192;
 const WORDS_PER_ROW = 8;
 const MEMORY_SIZE = 65536;
 
@@ -22,20 +22,25 @@ export default function Ram() {
 
     mem[0x007F] = 0xDEAD;
 
+    // mem[0x0C05] = 0xDAD0;
+
     return mem;
   })();
 
 
-  const pc = state?.pc ?? 0;
+  // const pc = state?.pc ?? 0;
   const base = 0;
-  const slice = memory.slice(base, base + ROWS * WORDS_PER_ROW);
 
   function toHex16(value: number): string {
     return (value & 0xffff).toString(16).toUpperCase().padStart(4, "0");
   }
 
+  const lastNonZeroIndex = memory.reduce((last, value, i) => (value !== 0 ? i : last), 0);
+  const totalRows = Math.ceil((lastNonZeroIndex + 1) / WORDS_PER_ROW);
+  const slice = memory.slice(0, totalRows * WORDS_PER_ROW);
+
   const rows: number[][] = [];
-  for (let i = 0; i < ROWS; i++) {
+  for (let i = 0; i < totalRows; i++) {
     rows.push(slice.slice(i * WORDS_PER_ROW, (i + 1) * WORDS_PER_ROW));
   }
 
@@ -72,7 +77,7 @@ export default function Ram() {
         <div className="ram-table">
           <div className="ram-container">
             {rows.map((rowWords, i) => {
-              const addr = base + i * WORDS_PER_ROW;
+              const addr = base + i * WORDS_PER_ROW * 2;
               // console.log(addr);
               // console.log(rowWords);
               // // print all words in the row
@@ -80,20 +85,24 @@ export default function Ram() {
               //   console.log(`  Word ${i}: ${word}`);
               // })
 
+
               return (
                   <div key={addr} className="ram-row">
+                    {/* Address */}
                     <div className="ram-addr-column">
                       0x{addr.toString(16).toUpperCase().padStart(4, "0")}
                     </div>
 
+                    {/*Corresponding line of words*/}
                     <div className="ram-grid">
-                      {rowWords.map((word, j) => (
-                          <div
-                              key={j}
-                              className={`ram-cell ${(word ) !== 0 ? "nonzero" : ""}`} >
-                            {toHex16(word)}
-                          </div>
-                      ))}
+                      {rowWords.map((word, j) => {
+                        const val = Number(word ?? 0);
+                        return (
+                            <div key={j} className={`ram-cell ${val !== 0 ? "nonzero" : ""}`}>
+                              {toHex16(val)}
+                            </div>
+                        );
+                      })}
                     </div>
                   </div>
               );
