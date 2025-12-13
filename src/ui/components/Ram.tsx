@@ -7,7 +7,7 @@ const WORDS_PER_ROW = 8;
 const MEMORY_SIZE = 65536;
 
 export default function Ram() {
-  const { state } = useComputron();
+  const { state, setMemoryCell, run } = useComputron();
 
   const memory = state?.memory ?? (() => {
     const mem = new Array(MEMORY_SIZE).fill(0);
@@ -35,14 +35,36 @@ export default function Ram() {
     return (value & 0xffff).toString(16).toUpperCase().padStart(4, "0");
   }
 
-  const lastNonZeroIndex = memory.reduce((last, value, i) => (value !== 0 ? i : last), 0);
-  const totalRows = Math.ceil((lastNonZeroIndex + 1) / WORDS_PER_ROW);
-  const slice = memory.slice(0, totalRows * WORDS_PER_ROW);
+  const lastNonZeroIndex = memory.reduce(
+      (last, value, i) => (Number(value) !== 0 ? i : last),
+      0
+  );
 
+  const totalRows = Math.ceil((lastNonZeroIndex + 1) / WORDS_PER_ROW);
+  const slice = memory.slice(0, lastNonZeroIndex + 1); // only up to last non-zero
   const rows: number[][] = [];
+
   for (let i = 0; i < totalRows; i++) {
-    rows.push(slice.slice(i * WORDS_PER_ROW, (i + 1) * WORDS_PER_ROW));
+    const start = i * WORDS_PER_ROW;
+    const end = start + WORDS_PER_ROW;
+    const row = slice.slice(start, end);
+    rows.push(row);
   }
+
+
+
+  const handleLoad = () => {
+    // TODO
+  };
+
+  const handleStore = () => {
+    // TODO
+  };
+
+  const handleRun = () => {
+    if (!state) return;
+    run();
+  };
 
   return (
       <div className="ram-wrapper">
@@ -51,20 +73,21 @@ export default function Ram() {
           <div className="ram-title">RAM</div>
           <div className="ram-controls">
             <div className="ram-buttons-left">
-              <button className="ram-button">
+              <button className="ram-button" onClick={() => { if (handleLoad) handleLoad();}}>
                 <svg className="button-icon-svg" fill="none" viewBox="0 0 10 10">
                   <path d={svgIcons.ram_load} fill="white" />
+
                 </svg>
                 Load
               </button>
-              <button className="ram-button">
+              <button className="ram-button" onClick={() => { if (handleStore) handleStore();}}>
                 <svg className="button-icon-svg" fill="none" viewBox="0 0 10 10">
                   <path d={svgIcons.ram_store} fill="white" />
                 </svg>
                 Store
               </button>
             </div>
-            <button className="ram-button">
+            <button className="ram-button" onClick={() => { if (handleRun) handleRun();}}>
               <svg className="button-icon-svg" fill="none" viewBox="0 0 10 10">
                 <path d={svgIcons.ram_run} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" />
               </svg>
