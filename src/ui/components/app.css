@@ -19,7 +19,7 @@
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     border-radius: 12px;
-    padding: 1px;
+    padding: var(--border-width);
     background: radial-gradient(circle at 30% 30%, #6E6565 0%, rgba(136,97,97,0) 100%);
     -webkit-mask:
             linear-gradient(#fff 0 0) content-box,
@@ -27,4 +27,19 @@
     -webkit-mask-composite: destination-out;
     mask-composite: exclude;
     pointer-events: none;
+}
+
+.headers-font{
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.text-font{
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.text-font-bold{
+    font-size: 12px;
+    font-weight: 500;
 }

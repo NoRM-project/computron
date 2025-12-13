@@ -1,5 +1,5 @@
-import InstructionTableRow from "./InstructionTableRow";
-import type { Instruction } from "./Helper";
+import InstructionTableRow from "./InstructionTableRow.tsx";
+import type { Instruction } from "../Helper.tsx";
 
 type Props = {
     instructions: Instruction[];

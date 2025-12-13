@@ -1,12 +1,12 @@
 .memory-container{
-    min-width: 300px;
-    flex: 5;
+    flex: 1;
+    min-width: 455px;
     min-height: 40vh;
     gap: 12px;
-    padding: 12px;
+    /*padding: 12px;*/
     background: var(--memory-gradient);
 }
 
 .memory-header{
-    
+    padding: 10px;
 }

@@ -1,4 +1,4 @@
-import type { Instruction } from "./Helper";
+import type { Instruction } from "../Helper.tsx";
 
 type Props = {
     instruction: Instruction;
