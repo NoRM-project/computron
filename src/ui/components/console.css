@@ -5,6 +5,7 @@
     gap: 4px;
     flex: 3;
     min-width: 155px;
+    background: var(--console-gradient);
 }
 
 .console-header{
