@@ -1,7 +1,7 @@
 import './helper.css';
 import instructionsJson from '../assets/instructions.json';
 import {useState} from "react";
-import InstructionTable from "./InstructionTable.tsx";
+import InstructionTable from "./primitives/InstructionTable.tsx";
 
 export type Instruction = {
     code: string;

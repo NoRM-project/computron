@@ -1,7 +1,7 @@
 :root {
     font-family: "Inter", sans-serif;
     font-size: 16px;
-    line-height: 1.5;
+    line-height: 140%;
     font-weight: 400;
 
     color-scheme: light dark;
@@ -17,7 +17,8 @@
     --black: #2C2C2C;
     --background-color: #212121;
     --transparent-background: rgb(0, 0, 0, 0.2);
-    --buttons-monotone-color: #747475;
+    /*--buttons-monotone-color: #747475;*/
+    --buttons-monotone-color: #666666;
     --borders-color: #5A5A5A;
     --text-dark: #3B3A3B;
     --text-highlight-color: #0D99FF;
@@ -25,7 +26,8 @@
     --module-gap: 16px;
     --border-radius: 8px;
     --border-radius-mini: 6px;
-    --border: 1px solid var(--borders-color);
+    --border: 2px solid var(--borders-color);
+    --border-width: 1px;
 
     --menu-gradient: linear-gradient(90deg,
     #806D50 0%,
