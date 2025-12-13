@@ -8,8 +8,9 @@
 }
 
 .container{
-    background-color: var(--white);
+    background-color: var(--background-color);
     border-right: var(--border);
     border-bottom: var(--border);
     border-radius: var(--border-radius);
+    color: var(--white);
 }

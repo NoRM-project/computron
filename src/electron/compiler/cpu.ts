@@ -1,3 +1,5 @@
+import { RequestHandler } from "../requestHandler.js";
+
 export class CPU {
     private static instance: CPU | null = null;
     private state: ComputronState = {
@@ -65,10 +67,14 @@ export class CPU {
 
     setRegister(val: number, reg: Register) {
         this.state[reg] = val;
+        const reqHandler = RequestHandler.getInstance();
+        reqHandler.sendComputronUpdate(this.state);
     };
 
     setMemoryCell(val: number, index: number) {
         this.state.memory[index] = val;
+        const reqHandler = RequestHandler.getInstance();
+        reqHandler.sendComputronUpdate(this.state);
     };
 
     addToPC(val: number) {
