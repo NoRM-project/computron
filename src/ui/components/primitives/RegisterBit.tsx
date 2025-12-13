@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 
 type BitProps = {
     color: "red" | "blue" | "orange" | "green";
@@ -26,18 +26,33 @@ const GRADIENTS = {
 } as const;
 
 const Bit: React.FC<BitProps> = ({ color, turnedOn, onClick }) => {
+    const id = useId();
     const state = turnedOn ? "on" : "off";
     const { c1, c2 } = GRADIENTS[color][state];
 
     return (
-        <svg onClick={onClick} width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="23" height="23" fill="url(#paint0_radial_110_1455)"/>
+        <svg
+            onClick={onClick}
+            width="23"
+            height="23"
+            viewBox="0 0 23 23"
+            xmlns="http://www.w3.org/2000/svg"
+        >
             <defs>
-                <radialGradient id="paint0_radial_110_1455" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(11.5 11.5) rotate(90) scale(11.5)">
-                    <stop stop-color={c1}/>
-                    <stop offset="1" stop-color={c2}/>
+                <radialGradient
+                    id={id}
+                    cx="0"
+                    cy="0"
+                    r="1"
+                    gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(11.5 11.5) rotate(90) scale(11.5)"
+                >
+                    <stop stopColor={c1} />
+                    <stop offset="1" stopColor={c2} />
                 </radialGradient>
             </defs>
+
+            <rect width="23" height="23" fill={`url(#${id})`} />
         </svg>
     );
 };

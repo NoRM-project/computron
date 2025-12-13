@@ -31,12 +31,12 @@ const Registers: React.FC = () => {
             </div>
             <WordSelector
                 wordType='cpu'
-                currentValue={state ? state[selectedTab] : 0}
+                currentValue={state?.[selectedTab] ?? 0}
                 onValueChange={(value) => setRegister(selectedTab, value)}
             />
             <WordSelector
                 wordType='memory'
-                currentValue={state ? state.memory[state.pc] : 0}
+                currentValue={state?.memory?.[state?.pc ?? 0] ?? 0}
                 onValueChange={(value) => setMemoryCell(value)}
             />
         </div>

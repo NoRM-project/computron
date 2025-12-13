@@ -1,5 +1,6 @@
 import React from 'react'
 import Bit from './RegisterBit';
+import NumberInput from './NumberInput';
 
 type WordSelectorProps = {
     wordType: 'cpu' | 'memory';
@@ -9,7 +10,7 @@ type WordSelectorProps = {
 
 function decimalTo16BitArray(value: number): boolean[] {
   if (!Number.isInteger(value)) {
-    throw new Error('Value must be an integer');
+    throw new Error(`Value must be an integer, got ${value}`);
   }
 
   if (value < 0 || value > 0xffff) {
@@ -43,11 +44,12 @@ export function bitArray16ToDecimal(bits: boolean[]): number {
 
 function getColor(wordType: 'cpu' | 'memory', position: number) {
     const colors: boolean[] = [
+        true,
+        false, false, false,
         true, true, true,
-        false, false, false, false,
-        false, false, false, false,
-        false, false, false, false,
-        false,
+        false, false, false,
+        true, true, true,
+        false, false, false
     ];
     return wordType === 'cpu' ? (colors[position] ? 'orange' : 'green') : (colors[position] ? 'blue' : 'red')
 }
@@ -57,16 +59,23 @@ const WordSelector: React.FC<WordSelectorProps> = ({wordType, currentValue, onVa
     const bitStates = decimalTo16BitArray(currentValue);
  
     const changeBit = function(bit: number) {
-        bitStates[bit] = !bitStates[bit];
-        onValueChange(bitArray16ToDecimal(bitStates));
+        const nextBits = [...bitStates];
+        nextBits[bit] = !nextBits[bit];
+        onValueChange(bitArray16ToDecimal(nextBits));
     };
 
     return (
-        <div className='word-selector'>
+      <div className='word-selector'>
+        <div className='word-selector-bits'>
             {bitStates.map((active, i) => (
                 <Bit color={getColor(wordType, i)} turnedOn={active} onClick={() => changeBit(i)}/>
             ))}
         </div>
+        <div className='number-input-container'>
+          <div className='number-input-title'>{wordType === 'cpu' ? 'CPU' : 'Memory'}</div>
+          <NumberInput currentValue={currentValue} onValueChange={onValueChange}/>
+        </div>
+      </div>
     );
 };
 
