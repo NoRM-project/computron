@@ -1,7 +1,7 @@
 import { useComputron } from "../api/ComputronContext";
 import "./ram.css";
 
-const MEMORY_SIZE = 65536;
+// const MEMORY_SIZE = 65536;
 const ROWS = 16;
 const WORDS_PER_ROW = 8;
 
@@ -23,22 +23,55 @@ export default function Ram() {
   }
 
   return (
-      <div className="ram-container">
-        {rows.map((rowWords, i) => {
-          const addr = base + i * WORDS_PER_ROW;
+      <div className="ram-wrapper">
+        <div className="ram-header">
+          <div className="ram-title">RAM</div>
 
-          return (
-              <div key={addr} className={`ram-row ${addr === pc ? "pc" : ""}`}>
-            <span className="ram-addr">
-              0x{addr.toString(16).padStart(4, "0")}
-            </span>
-                <span className="ram-sep">|</span>
-                <span className="ram-bits">
-              {rowWords.map(toHex16).join(" ")}
-            </span>
-              </div>
-          );
-        })}
+          <div className="ram-controls">
+            <div className="ram-buttons-left">
+              <button className="ram-button">
+                <span className="button-icon">↓</span>
+                Load
+              </button>
+              <button className="ram-button">
+                <span className="button-icon">↑</span>
+                Store
+              </button>
+            </div>
+            <button className="ram-button">
+              <span className="button-icon">▶</span>
+              Run
+            </button>
+          </div>
+        </div>
+
+        <div className="ram-table">
+          <div className="ram-container">
+            {rows.map((rowWords, i) => {
+              const addr = base + i * WORDS_PER_ROW;
+              const isRowHighlighted = Math.floor((pc - base) / WORDS_PER_ROW) === i;
+
+              return (
+                  <div key={addr} className="ram-row">
+                    <div className="ram-addr-column">
+                      0x{addr.toString(16).toUpperCase().padStart(4, "0")}
+                    </div>
+
+                    <div className="ram-grid">
+                      {rowWords.map((word, j) => (
+                          <div
+                              key={j}
+                              className={`ram-cell ${isRowHighlighted ? "highlighted" : ""}`}
+                          >
+                            {toHex16(word)}
+                          </div>
+                      ))}
+                    </div>
+                  </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
   );
 }
