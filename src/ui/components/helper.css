@@ -2,9 +2,12 @@
     display: flex;
     flex-direction: column;
     min-width: 155px;
-    min-height: 40vh;
     background: var(--healper-gradient);
     overflow: hidden;
+
+    /* critical for nested flex + scrolling */
+    min-height: 0;
+    max-height: 100%;   /* prevents growing beyond parent when parent has a height */
 }
 
 .helper-header{
@@ -34,23 +37,27 @@
     border-radius: var(--border-radius-mini);
     padding-right: 24px;
     padding: 3px;
+    color: var(--white);
 }
 
 .helper-search:focus{
     border: none;
-    outline: none;
     background-color: var(--transparent-background);
 }
 
-.instructions-table{
-    padding: 0;
+.instruction-table{
+    width: 100%;
+    border-collapse: collapse;
     display: flex;
     flex-direction: column;
-    width: 100%;
+    min-height: 0;
 }
 
-.helper-container table {
-    border-collapse: collapse;
+.instruction-table tbody{
+    display: block;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .table-row{

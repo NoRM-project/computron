@@ -77,13 +77,13 @@ export default function Ram() {
         <div className="ram-table">
           <div className="ram-container">
             {rows.map((rowWords, i) => {
-              const addr = base + i * WORDS_PER_ROW;
+              const addr = base + i * WORDS_PER_ROW * 2;
               // console.log(addr);
               // console.log(rowWords);
               // // print all words in the row
-              rowWords.forEach((word, i) => {
-                console.log(`  Word ${i}: ${word}`);
-              })
+              // rowWords.forEach((word, i) => {
+              //   console.log(`  Word ${i}: ${word}`);
+              // })
 
 
               return (

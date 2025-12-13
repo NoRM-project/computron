@@ -10,7 +10,7 @@ export class CPU {
         x: 0,
         rh: 0,
         rl: 0,
-        memory: new Array<number>(),
+        memory: new Array<number>(65536).fill(0)
     };
     private runningSignal: boolean = false;
     private newInput: string = "";
