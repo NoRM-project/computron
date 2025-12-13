@@ -1,7 +1,5 @@
 type Register = 'pc' | 'sp' | 'a' | 'x' | 'rh' | 'rl'
 
-type FileSavingResult = 'success' | 'failure'
-
 type ComputronState = {
     pc: number;
     sp: number;
@@ -12,12 +10,9 @@ type ComputronState = {
     memory: Array<number>;
 }
 
-type SelectFileResult = {
-    success: true;
-    content: string;
-} | {
-    success: false;
-}
+type FileResult<T> =
+    | { success: true; data: T }
+    | { success: false; error: string };
 
 interface Window {
     electronAPI: {
@@ -26,8 +21,10 @@ interface Window {
         setRegister(register: Register, value: number): void;
         setMemoryCell(value: number): void;
         consoleInput(value: number): void;
-        selectFile(path: string): SelectFileResult;
-        saveFile(newContent: string): FileSavingResult;
+        selectFile(path: string): FileResult<string>;
+        saveFile(newContent: string): FileResult<void>;
+        loadRamFromFile(path: string): FileResult<void>;
+        saveRamToFile(path: string): FileResult<void>;
         onComputronUpdate(cb: (state: ComputronState) => void): () => void;
         onConsoleOutput(cb: (value: string) => void): () => void;
         onRequestInput(cb: (value: number) => void): () => void;

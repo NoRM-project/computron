@@ -1,5 +1,4 @@
 import React from 'react'
-import Bit from './RegisterBit';
 
 type NumberInputProps = {
     currentValue: number;

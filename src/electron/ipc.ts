@@ -1,5 +1,5 @@
 import { BrowserWindow, ipcMain } from "electron";
-import { loadFile, saveFile } from "./services/fileService.js";
+import { loadTextFile, saveTextFile } from "./services/fileService.js";
 import { CPU } from "./compiler/cpu.js";
 import run from "./compiler/executer.js";
 import { parseProgram } from "./parser/parser.js";
@@ -43,12 +43,19 @@ export function registerIPC(win: BrowserWindow) {
         cpu.setMemoryCell(data.value, pc)
     });
 
-
-    ipcMain.handle("selectFile", async (evt, args: { path: string }) => {
-        return loadFile(args.path);
+    ipcMain.handle("loadRamFromFile", async (evt, args: { path: string }) => {
+        cpu.loadRamFromFile(args.path);
     });
 
-    ipcMain.handle("saveFile", async (evt, args: { newContent: string }) => {
-        return saveFile(args.newContent);
+    ipcMain.handle("saveRamToFile", async (evt, args: { path: string }) => {
+        cpu.saveRamToFile(args.path);
+    });
+
+    ipcMain.handle("selectFile", async (evt, args: { path: string }) => {
+        return loadTextFile(args.path);
+    });
+
+    ipcMain.handle("saveFile", async (evt, args: { path: string, newContent: string }) => {
+        return saveTextFile(args.path, args.newContent);
     });
 }
