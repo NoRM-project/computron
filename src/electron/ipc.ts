@@ -58,4 +58,8 @@ export function registerIPC(win: BrowserWindow) {
     ipcMain.handle("saveFile", async (evt, args: { path: string, newContent: string }) => {
         return saveTextFile(args.path, args.newContent);
     });
+
+    ipcMain.handle("getInitialComputronState", async (evt) => {
+        return cpu.getState();
+    });
 }

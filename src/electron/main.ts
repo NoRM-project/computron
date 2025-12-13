@@ -4,6 +4,7 @@ import { isDev } from './util.js';
 import { registerIPC } from './ipc.js';
 import { getPreloadPath } from './pathResolver.js';
 import { RequestHandler } from './requestHandler.js';
+import {CPU} from "./compiler/cpu.js";
 
 let win: BrowserWindow;
 
