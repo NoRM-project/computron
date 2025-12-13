@@ -4,6 +4,7 @@
     min-height: 40vh;
     gap: 12px;
     padding: 12px;
+    background: var(--memory-gradient);
 }
 
 .memory-header{

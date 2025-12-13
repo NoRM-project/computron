@@ -1,6 +1,6 @@
 .menu-bar {
     width: 100%;
-    background-color: var(--black);
+    background: var(--menu-gradient);
     color: var(--white);
     padding: 12px;
     display: flex;
