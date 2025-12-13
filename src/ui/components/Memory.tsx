@@ -1,4 +1,4 @@
-import './memmory.css'
+import './memory.css'
 import Ram from './Ram'
 import Registers from './Registers'
 
