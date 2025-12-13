@@ -25,6 +25,7 @@ interface Window {
         saveFile(newContent: string): FileResult<void>;
         loadRamFromFile(path: string): FileResult<void>;
         saveRamToFile(path: string): FileResult<void>;
+        getInitialComputronState(): Promise<ComputronState>;
         onComputronUpdate(cb: (state: ComputronState) => void): () => void;
         onConsoleOutput(cb: (value: string) => void): () => void;
         onRequestInput(cb: (value: number) => void): () => void;

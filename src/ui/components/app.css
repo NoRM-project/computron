@@ -5,7 +5,7 @@
     padding: var(--module-padding);
     gap: var(--module-gap);
     flex-wrap: wrap;
-    overflow: auto;
+    overflow: hidden;
 }
 
 .container {

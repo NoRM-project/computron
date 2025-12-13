@@ -81,9 +81,9 @@ export default function Ram() {
               // console.log(addr);
               // console.log(rowWords);
               // // print all words in the row
-              rowWords.forEach((word, i) => {
-                console.log(`  Word ${i}: ${word}`);
-              })
+              // rowWords.forEach((word, i) => {
+              //   console.log(`  Word ${i}: ${word}`);
+              // })
 
 
               return (

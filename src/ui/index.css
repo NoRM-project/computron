@@ -71,6 +71,13 @@
     --gradient-border-image: linear-gradient(90deg, #737B7B, #647576, #828181) 1;
 }
 
+button {
+    outline: none;
+}
+
+input {
+    outline: none;
+}
 
 body {
     margin: 0;
