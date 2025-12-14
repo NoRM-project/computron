@@ -2,16 +2,16 @@
     padding: 8px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
     flex: 3;
     min-width: 155px;
     background: var(--console-gradient);
 }
 
 .console-header{
+    align-items: center;
+    padding-bottom: 10px;
     display: flex;
     flex-direction: row;
-    align-items: center;
     justify-content: space-between;
 }
 
@@ -22,16 +22,6 @@
     flex: 1 1 0;
 }
 
-.console-header button{
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-    border-radius: 4px;
-    border: none;
-}
 
 .console-header div{
     display: flex;
@@ -39,13 +29,14 @@
     gap: 0.5rem;
 }
 
+.console-header button{
+    width: 22px;
+}
+
 .clean-up{
-    background-color: var(--gray-background);
-    border: 1px solid var(--gray-borders);
 }
 
 .collapse-button{
-    background-color: var(--black);
 }
 
 .console-container.collapsed .collapse-button svg {

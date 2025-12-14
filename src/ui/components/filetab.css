@@ -1,14 +1,8 @@
-/*.files-container{*/
-/*    flex: 5;*/
-/*    min-width: 300px;*/
-/*    background: var(--files-gradient);*/
-/*}*/
-
 .files-container {
     display: flex;
     flex-direction: column;
-    /*height: 100%;*/
-    width: 35%;
+    flex: 5;
+    min-width: 417px;
     border-radius: 8px;
     border: 1px solid #6e6565;
     background: radial-gradient(

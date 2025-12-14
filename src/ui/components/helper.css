@@ -1,6 +1,7 @@
 .helper-container{
     display: flex;
     flex-direction: column;
+    flex: 3;
     min-width: 155px;
     background: var(--healper-gradient);
     overflow: hidden;

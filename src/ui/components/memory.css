@@ -1,9 +1,8 @@
 .memory-container{
-    flex: 1;
+    flex: 5;
     min-width: 455px;
     min-height: 40vh;
     padding-bottom: 10px;
-    /*padding: 12px;*/
     background: var(--memory-gradient);
     display: flex;
     flex-direction: column;
