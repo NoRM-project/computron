@@ -31,7 +31,6 @@
     gap: 0;
 }
 
-
 .tab {
     display: flex;
     align-items: center;
@@ -81,26 +80,6 @@
     height: 7px;
 }
 
-.add-tab-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 7px 12px;
-    border-radius: 8px 8px 0 0;
-    background-color: #747475;
-    color: white;
-    border: none;
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.add-tab-btn:hover {
-    background-color: #858586;
-}
-
 .actions-section {
     padding: 10px;
     height: 100%;
@@ -143,13 +122,16 @@
     flex-shrink: 0;
 }
 
-/* Editor styles */
+/* Editor styles - як у консолі */
 .editor-wrapper {
-    display: flex;
     position: relative;
-    overflow: auto; /* робимо scrollable контейнер */
+    overflow: auto; /* скролбар тільки коли треба */
     flex: 1 1 0;
-    height: 100%;
+}
+
+.editor-content {
+    display: flex;
+    min-height: 100%;
 }
 
 .line-numbers {
@@ -160,12 +142,15 @@
     font-family: 'Inter', sans-serif;
     font-size: 12px;
     line-height: 1.4;
-    text-align: left;
+    text-align: right;
     user-select: none;
     border-bottom-left-radius: 6px;
+    color: rgba(255, 255, 255, 0.6);
+    flex-shrink: 0;
+    min-width: 40px;
 }
 
-.line-numbers > div {
+.line-number {
     line-height: 1.4;
 }
 
@@ -183,6 +168,8 @@
     white-space: pre;
     border-bottom-right-radius: 6px;
     overflow: hidden;
+    width: 100%;
+    min-height: 100%;
 }
 
 .code-editor::placeholder {

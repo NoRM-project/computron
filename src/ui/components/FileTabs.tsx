@@ -17,8 +17,7 @@ export default function FileTabs() {
   const [activeTabId, setActiveTabId] = useState("1");
   const activeTab = tabs.find((t) => t.id === activeTabId)!;
 
-  const editorRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorWrapperRef = useRef<HTMLDivElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
 
   const updateContent = (value: string) => {
@@ -46,20 +45,12 @@ export default function FileTabs() {
     if (id === activeTabId) setActiveTabId(newTabs[0].id);
   };
 
-  // const handleAddTab = () => {
-  //   const newId = String(Date.now());
-  //   const newTab: FileTab = { id: newId, name: `file${tabs.length + 1}.asm`, content: "" };
-  //   setTabs([...tabs, newTab]);
-  //   setActiveTabId(newId);
-  // };
-
-  const lines = activeTab.content.split("\n").length;
+  const lines = Math.max(activeTab.content.split("\n").length, 1);
 
   const syncScroll = () => {
-    if (!editorRef.current || !lineNumbersRef.current || !textareaRef.current) return;
-    const scrollTop = editorRef.current.scrollTop;
+    if (!editorWrapperRef.current || !lineNumbersRef.current) return;
+    const scrollTop = editorWrapperRef.current.scrollTop;
     lineNumbersRef.current.scrollTop = scrollTop;
-    textareaRef.current.scrollTop = scrollTop;
   };
 
   return (
@@ -95,7 +86,6 @@ export default function FileTabs() {
                   </div>
               );
             })}
-            {/*<button className="add-tab-btn" onClick={handleAddTab}>+</button>*/}
           </div>
 
           <div className="actions-section">
@@ -122,19 +112,26 @@ export default function FileTabs() {
         </div>
 
         {/* Editor */}
-        <div className="editor-wrapper scrollable" ref={editorRef} onScroll={syncScroll}>
-          <div className="line-numbers" ref={lineNumbersRef}>
-            {Array.from({ length: lines }, (_, i) => (
-                <div key={i}>{i + 1}</div>
-            ))}
+        <div
+            className="editor-wrapper"
+            ref={editorWrapperRef}
+            onScroll={syncScroll}
+        >
+          <div className="editor-content">
+            <div className="line-numbers" ref={lineNumbersRef}>
+              {Array.from({ length: lines }, (_, i) => (
+                  <div key={i} className="line-number">{i + 1}</div>
+              ))}
+            </div>
+
+            <textarea
+                className="code-editor"
+                value={activeTab.content}
+                onChange={(e) => updateContent(e.target.value)}
+                spellCheck={false}
+                rows={lines}
+            />
           </div>
-          <textarea
-              className="code-editor"
-              ref={textareaRef}
-              value={activeTab.content}
-              onChange={(e) => updateContent(e.target.value)}
-              spellCheck={false}
-          />
         </div>
       </div>
   );
