@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type ConsoleData = {
+export type ConsoleData = {
     type: 'in' | 'out';
     value: string;
 };
@@ -25,7 +25,7 @@ type ComputronContextType = {
     // функція для очистки консолі, просто для зручності
     cleanConsole: () => void;
     // передати ввід з консолі
-    consoleInput: (value: number) => void;
+    consoleInput: (value: string) => void;
     // змінна яка визначає чи потрібен ввід в консоль
     inputRequested: boolean;
 
@@ -101,7 +101,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         run: window.electronAPI.run,
         setRegister: window.electronAPI.setRegister,
         setMemoryCell: window.electronAPI.setMemoryCell,
-        consoleInput: (value:number)=>{
+        consoleInput: (value:string)=>{
             setInputRequested(false);
             window.electronAPI.consoleInput(value);
         },
