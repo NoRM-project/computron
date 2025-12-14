@@ -8,4 +8,12 @@ export function getPreloadPath() {
         isDev() ? '.' : '..',
         '/dist-electron/preload.cjs'
     )
-};
+}
+
+export function getIconPath() {
+    return path.join(
+        app.getAppPath(),
+        isDev() ? '.' : '..',
+        '/src/assets/icon.png'
+    )
+}
