@@ -2,7 +2,7 @@
     flex: 1;
     min-width: 455px;
     min-height: 40vh;
-    gap: 12px;
+    padding-bottom: 10px;
     /*padding: 12px;*/
     background: var(--memory-gradient);
     display: flex;

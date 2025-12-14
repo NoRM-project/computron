@@ -16,7 +16,11 @@
     font-style: normal;
     font-weight: 500;
     line-height: 140%;
+    height: 42px;
+    display: flex;
+    align-items: center;
 }
+
 
 .register-tab-list {
     display: flex;

@@ -26,8 +26,8 @@
     --module-gap: 16px;
     --border-radius: 8px;
     --border-radius-mini: 6px;
-    --border: 2px solid var(--borders-color);
-    --border-width: 1px;
+    --border: var(--border-width) solid var(--borders-color);
+    --border-width: 1.5px;
 
     --menu-gradient: linear-gradient(90deg,
     #806D50 0%,

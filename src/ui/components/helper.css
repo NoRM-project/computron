@@ -35,9 +35,9 @@
     border: none;
     font-size: 14px;
     border-radius: var(--border-radius-mini);
-    padding-right: 24px;
-    padding: 3px;
+    padding: 3px 24px 3px 3px;
     color: var(--white);
+    height: 22px;
 }
 
 .helper-search:focus{
@@ -56,8 +56,6 @@
 .instruction-table tbody{
     display: block;
     min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
 }
 
 .table-row{
@@ -65,7 +63,6 @@
     width: 100%;
     flex-direction: row;
     font-size: 12px;
-    padding-right: 10px;
     border-top: var(--border-width) solid;
     border-image: var(--gradient-border-image);
     box-sizing: border-box;
