@@ -47,7 +47,7 @@ export default function Console() {
                 </button>
             </div>
 
-            <div className="console-output">
+            <div className="console-output scrollable">
                 {output.map((line, i) => (
                     <div key={i}>{line}</div>
                 ))}
