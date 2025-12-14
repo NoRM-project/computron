@@ -16,7 +16,7 @@ type ComputronContextType = {
     // поточний стан компутрона
     state: ComputronState | null;
     files: ProgramFile[];
-    activeFilePath: string | null;
+    activeFile: ProgramFile | null;
 
     // Console -----------------------------------------
     // поле значень в консолі, при вводі тип інпут, з беку іде аутпут
@@ -33,10 +33,11 @@ type ComputronContextType = {
     compile: (code: string, run: boolean) => void;
     // наразі я погано розумію як нам працювати з файлами в плані відкрити, закрити
     // заготовка передбачає збереження файлів на фронті у вигляді масивів з данних і пасів, але це було б непогано додатково обговорити
-    // saveFile: () => void;
-    // saveAs: () => void;
-    // closeFile: () => void;
-    // openFile:() => void;
+    saveFile: () => void;
+    saveFileAs: () => void;
+    closeFile: (file:ProgramFile) => void;
+    openFile:() => void;
+    newFile: (name:string) => void;
 
 
     // Memory and Registers
@@ -64,35 +65,86 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
     const [state, setState] = useState<ComputronState | null>(null);
     const [files, setFiles] = useState<ProgramFile[]>([]);
-    const [activeFilePath, setActiveFilePath] = useState<string | null>(null);
+    const [activeFile, setActiveFile] = useState<ProgramFile | null>(null);
+    const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
+    const [inputRequested, setInputRequested] = useState<InputType>(null);
 
-    // const handleOpenFile = async () => {
-    //     const filePath = await window.electronAPI.askOpenFilePath({
-    //         filters: [
-    //             { name: "Text file", extensions: ["text"] },
-    //             { name: "All Files", extensions: ["*"] },
-    //         ],
-    //     });
-    //
-    //     if (!filePath) {
-    //         console.error("Failed to open file");
-    //         return;
-    //     }
-    //
-    //     const result = await window.electronAPI.openFile(filePath);
-    //
-    //     if (!result.success) {
-    //         console.error(result.error);
-    //         return;
-    //     }
-    //
-    //     const content = result.data;
-    //     const fileName = path.basename(filePath);
-    //     setFiles(prev => [...prev, { filePath, fileName, content }]);
-    //     console.log(content);
-    // };
+    const handleOpenFile = async () => {
+        const filePath = await window.electronAPI.askOpenFilePath({
+            filters: [
+                { name: "Text file", extensions: ["text"] },
+                { name: "All Files", extensions: ["*"] },
+            ],
+        });
+
+        if (!filePath) {
+            console.error("Failed to open file");
+            return;
+        }
+
+        const result = await window.electronAPI.openFile(filePath);
+
+        if (!result.success) {
+            console.error(result.error);
+            return;
+        }
+
+        const file = result.data;
+        setFiles(prev => [...prev, file]);
+        setActiveFile(file);
+    };
+
+    const handleSaveFile = async () => {
+        if (activeFile) {
+            if(activeFile.path === undefined) {
+                await handleSaveAs();
+            }
+            else {
+                await window.electronAPI.saveFile(
+                    activeFile.path,
+                    activeFile.content
+                );
+            }
+        }
+    };
 
 
+
+    const handleSaveAs = async () => {
+        if (activeFile) {
+            const filePath = await window.electronAPI.askOpenFilePath({
+                filters: [
+                    { name: "Text file", extensions: ["text"] },
+                    { name: "All Files", extensions: ["*"] },
+                ],
+            });
+
+            if (!filePath) {
+                console.error("Failed to open file");
+                return;
+            }
+
+            const result = await window.electronAPI.saveFile(filePath, activeFile.content);
+
+            if (!result.success) {
+                console.error(result.error);
+                return;
+            }
+        }
+    };
+
+    const handleNewFile = async (name:string) => {
+        const newFile = {path:undefined, name:name, content:""}
+        setFiles(prev => [...prev, newFile]);
+        setActiveFile(newFile);
+    }
+
+    const handleCloseFile = (file: ProgramFile) => {
+        setFiles(prevFiles => prevFiles.filter(f => f !== file));
+        if (activeFile === file) {
+            setActiveFile(files[0]);
+        }
+    };
 
     const handleLoad = () => {
         window.electronAPI.askOpenFilePath({
@@ -139,8 +191,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         return () => { alive = false; };
     }, []);
 
-    const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
-    const [inputRequested, setInputRequested] = useState<InputType>(null);
+
 
     
     const cleanConsole = () => setConsoleOutput([]);
@@ -162,7 +213,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     const value: ComputronContextType = {
         state,
         files,
-        activeFilePath,
+        activeFile,
         consoleOutput,
         inputRequested,
         compile: window.electronAPI.compile,
@@ -176,10 +227,11 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         },
         loadRam: handleLoad,
         storeRam: handleStore,
-        // saveFile: () => void,
-        // saveAs: () => void,
-        // closeFile: () => void,
-        // openFile:() => void,
+        saveFile: handleSaveFile,
+        saveFileAs: handleSaveAs,
+        closeFile: handleCloseFile,
+        openFile:handleOpenFile,
+        newFile: handleNewFile,
     };
 
     return <ComputronContext.Provider value={value}>{children}</ComputronContext.Provider>;
