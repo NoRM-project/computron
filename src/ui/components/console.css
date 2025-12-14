@@ -44,3 +44,7 @@
 .collapse-button{
     background-color: var(--black);
 }
+
+.console-container.collapsed .collapse-button svg {
+    transform: rotate(-90deg);
+}
