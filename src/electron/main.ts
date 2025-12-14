@@ -21,6 +21,8 @@ const createWindow = async () => {
         icon: getIconPath(),
         width: 1280,
         height: 720,
+        minWidth: 662,
+        minHeight: 235,
     });
     RequestHandler.getInstance().setWindow(win);
 
