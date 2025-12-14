@@ -15,7 +15,7 @@ export type ConsoleData = {
 type ComputronContextType = {
     // поточний стан компутрона
     state: ComputronState | null;
-    files: File[];
+    files: ProgramFile[];
     activeFilePath: string | null;
 
     // Console -----------------------------------------
@@ -63,7 +63,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     }
 
     const [state, setState] = useState<ComputronState | null>(null);
-    const [files, setFiles] = useState<File[]>([]);
+    const [files, setFiles] = useState<ProgramFile[]>([]);
     const [activeFilePath, setActiveFilePath] = useState<string | null>(null);
 
     // const handleOpenFile = async () => {
@@ -79,7 +79,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     //         return;
     //     }
     //
-    //     const result = await window.electronAPI.selectFile(filePath);
+    //     const result = await window.electronAPI.openFile(filePath);
     //
     //     if (!result.success) {
     //         console.error(result.error);

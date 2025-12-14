@@ -19,7 +19,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     consoleInput: (value: string) => ipcRenderer.send("consoleInput", {value}),
     
     // інвоук означає що ми чекаємо на відповідь хендлера і результат який він нам верне. В даному випадку успіх/неуспіх і зміст файлу
-    selectFile: (path: string) => ipcRenderer.invoke("selectFile", {path}), // тут параметри залежать від того чи хочете ви таби. Один із параметрів точно path вибраного файлу. Як ретурн успіх/неуспіх і контент файлу
+    openFile: (path: string) => ipcRenderer.invoke("openFile", {path}), // тут параметри залежать від того чи хочете ви таби. Один із параметрів точно path вибраного файлу. Як ретурн успіх/неуспіх і контент файлу
     saveFile: (path: string, newContent: string) => ipcRenderer.invoke("saveFile", {path, newContent}), // зберегти файл з яким ми моментально працюємо. Ретурн це успіх/неуспіх. Наполягаю не робити таби аби не ускладнювати
 
     loadRamFromFile: (path: string) => ipcRenderer.invoke("loadRamFromFile", {path}), // завантажити пам'ять з файлу

@@ -1,10 +1,16 @@
 import fs from "fs";
+import path from "path"
 
 
-export function loadTextFile(path: string): FileResult<string> {
+export function loadTextFile(filePath: string): FileResult<ProgramFile> {
     try {
-        const data = fs.readFileSync(path, "utf8");
-        return { success: true, data };
+        const data = fs.readFileSync(filePath, "utf8");
+        const file: ProgramFile = {
+            path: filePath,
+            content: data,
+            name: path.basename(filePath)
+        }
+        return { success: true, data: file };
     } catch (err) {
         return { success: false, error: String(err) };
     }

@@ -51,7 +51,7 @@ export function registerIPC(win: BrowserWindow) {
         cpu.saveRamToFile(args.path);
     });
 
-    ipcMain.handle("selectFile", async (evt, args: { path: string }) => {
+    ipcMain.handle("openFile", async (evt, args: { path: string }) => {
         return loadTextFile(args.path);
     });
 
