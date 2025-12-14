@@ -7,7 +7,7 @@ const MEMORY_SIZE = 65536;
 
 const CELL_W = 40;   // px (hex cell width)
 const CELL_GAP = 6;  // px (gap between cells)
-const ROW_H = 25;
+const ROW_H = 22;
 const ROW_GAP = 3;
 const ADDR_W = 60;
 
