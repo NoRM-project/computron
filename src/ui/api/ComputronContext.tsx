@@ -1,16 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 // import {Connect} from "vite";
+// import path from "path";
 
 export type ConsoleData = {
     type: 'in' | 'out';
     value: string;
 };
 
-type File = {
-    path: string;
-    name: string;
-    content: string;
-}
+
 
 // До цього обєкту ви матимете доступ з будь якого компоненту, для використання достаньо використати хук на useComputron() 
 // Приклад: const { state, compile, run, consoleOutput } = useComputron();
@@ -19,6 +16,7 @@ type ComputronContextType = {
     // поточний стан компутрона
     state: ComputronState | null;
     files: File[];
+    activeFilePath: string | null;
 
     // Console -----------------------------------------
     // поле значень в консолі, при вводі тип інпут, з беку іде аутпут
@@ -35,7 +33,11 @@ type ComputronContextType = {
     compile: (code: string, run: boolean) => void;
     // наразі я погано розумію як нам працювати з файлами в плані відкрити, закрити
     // заготовка передбачає збереження файлів на фронті у вигляді масивів з данних і пасів, але це було б непогано додатково обговорити
-    //TODO
+    // saveFile: () => void;
+    // saveAs: () => void;
+    // closeFile: () => void;
+    // openFile:() => void;
+
 
     // Memory and Registers
     // запустити програму
@@ -55,11 +57,42 @@ type ComputronContextType = {
 const ComputronContext = createContext<ComputronContextType | undefined>(undefined);
 
 export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-
     const handleComputronUpdate = (value: ComputronState) => {
         console.log(value);
         setState(value);
     }
+
+    const [state, setState] = useState<ComputronState | null>(null);
+    const [files, setFiles] = useState<File[]>([]);
+    const [activeFilePath, setActiveFilePath] = useState<string | null>(null);
+
+    // const handleOpenFile = async () => {
+    //     const filePath = await window.electronAPI.askOpenFilePath({
+    //         filters: [
+    //             { name: "Text file", extensions: ["text"] },
+    //             { name: "All Files", extensions: ["*"] },
+    //         ],
+    //     });
+    //
+    //     if (!filePath) {
+    //         console.error("Failed to open file");
+    //         return;
+    //     }
+    //
+    //     const result = await window.electronAPI.selectFile(filePath);
+    //
+    //     if (!result.success) {
+    //         console.error(result.error);
+    //         return;
+    //     }
+    //
+    //     const content = result.data;
+    //     const fileName = path.basename(filePath);
+    //     setFiles(prev => [...prev, { filePath, fileName, content }]);
+    //     console.log(content);
+    // };
+
+
 
     const handleLoad = () => {
         window.electronAPI.askOpenFilePath({
@@ -92,8 +125,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         })
     };
 
-    const [state, setState] = useState<ComputronState | null>(null);
-    const [files, setFiles] = useState<File[]>([]);
+
 
     useEffect(() => {
         let alive = true;
@@ -130,6 +162,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     const value: ComputronContextType = {
         state,
         files,
+        activeFilePath,
         consoleOutput,
         inputRequested,
         compile: window.electronAPI.compile,
@@ -143,6 +176,10 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         },
         loadRam: handleLoad,
         storeRam: handleStore,
+        // saveFile: () => void,
+        // saveAs: () => void,
+        // closeFile: () => void,
+        // openFile:() => void,
     };
 
     return <ComputronContext.Provider value={value}>{children}</ComputronContext.Provider>;

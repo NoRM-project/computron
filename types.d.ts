@@ -12,6 +12,12 @@ type ComputronState = {
 
 type InputType = 'int' | 'char' | 'float' | null
 
+type File = {
+    path: string;
+    name: string;
+    content: string;
+}
+
 type FileResult<T> =
     | { success: true; data: T }
     | { success: false; error: string };
@@ -23,10 +29,10 @@ interface Window {
         setRegister(register: Register, value: number): void;
         setMemoryCell(value: number): void;
         consoleInput(value: string): void;
-        selectFile(path: string): FileResult<string>;
-        saveFile(newContent: string): FileResult<void>;
-        loadRamFromFile(path: string): FileResult<void>;
-        saveRamToFile(path: string): FileResult<void>;
+        selectFile(path: string): Promise<FileResult<string>>;
+        saveFile(newContent: string): Promise<FileResult<void>>;
+        loadRamFromFile(path: string): Promise<FileResult<void>>;
+        saveRamToFile(path: string): Promise<FileResult<void>>;
         getInitialComputronState(): Promise<ComputronState>;
         onComputronUpdate(cb: (state: ComputronState) => void): () => void;
         onConsoleOutput(cb: (value: string) => void): () => void;
