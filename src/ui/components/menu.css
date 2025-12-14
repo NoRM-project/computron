@@ -9,12 +9,53 @@
 }
 
 .menu-bar button{
-    color: white;
+    color: var(--white);
     background: none;
     border: none;
     padding: 5px 10px;
     cursor: pointer;
 }
+
+.menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+.menu-button {
+    background-color: #333;
+    color: var(--white);
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.menu-button:hover {
+    background-color: #444;
+}
+
+.popup-paper {
+    min-width: 160px;
+    background-color: #222;
+    color: var(--white);
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.popup-menu-item {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.popup-menu-item:hover {
+    background-color: #555;
+}
+
+.popup-divider {
+    border-color: #444;
+}
+
 
 /*.menu-item {*/
 /*    position: relative;*/
