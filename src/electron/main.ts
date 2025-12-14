@@ -2,7 +2,7 @@ import { app, BrowserWindow} from 'electron'
 import path from 'path'
 import { isDev } from './util.js';
 import { registerIPC } from './ipc.js';
-import { getPreloadPath } from './pathResolver.js';
+import {getIconPath, getPreloadPath} from './pathResolver.js';
 import { RequestHandler } from './requestHandler.js';
 import {CPU} from "./compiler/cpu.js";
 
@@ -18,13 +18,16 @@ const createWindow = async () => {
             nodeIntegration: false,
             devTools: true,
         },
+        icon: getIconPath(),
+        width: 1280,
+        height: 720,
     });
     RequestHandler.getInstance().setWindow(win);
 
     if (isDev()) {
         await win.loadURL("http://localhost:5123/");
     } else {
-        await win.loadFile(path.join(__dirname, "../../dist/index.html"));
+        await win.loadFile(path.join(app.getAppPath(), 'dist-react/index.html'))
     }
 };
 

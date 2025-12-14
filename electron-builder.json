@@ -1,6 +1,9 @@
 {
-    "appId": "com.example.someapp",
+    "appId": "sk.norm.computronvm",
+    "productName": "ComputronVM",
+    "icon": "src/assets/icon",
     "files": ["dist-electron", "dist-react"],
+    "extraResources": ["dist-electron/preload.cjs", "src/assets/**"],
     "mac": {
         "target": "dmg"
     },
