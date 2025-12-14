@@ -1,7 +1,6 @@
 .menu-bar {
     width: 100%;
     background: var(--menu-gradient);
-    color: var(--white);
     padding: 12px;
     display: flex;
     flex-direction: row;
@@ -11,4 +10,5 @@
 .menu-bar button{
     background: none;
     border: none;
+    color: var(--white);
 }

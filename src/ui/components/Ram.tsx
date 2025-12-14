@@ -5,11 +5,11 @@ import "./ram.css";
 
 const MEMORY_SIZE = 65536;
 
-const CELL_W = 35;   // px (hex cell width)
-const CELL_GAP = 8;  // px (gap between cells)
+const CELL_W = 40;   // px (hex cell width)
+const CELL_GAP = 6;  // px (gap between cells)
 const ROW_H = 22;
-const ROW_GAP = 5;
-const ADDR_W = 66;
+const ROW_GAP = 3;
+const ADDR_W = 60;
 
 function calcWordsPerRow(containerWidth: number) {
   const perCell = CELL_W + CELL_GAP;
@@ -22,7 +22,7 @@ function calcRowsNumber(containerHeight: number) {
 }
 
 export default function Ram() {
-  const { state, run, loadRam, storeRam } = useComputron();
+  const { state, run, loadRam, storeRam, setRegister } = useComputron();
 
   const gridWidthRef = useRef<HTMLDivElement>(null);
   const [wordsPerRow, setWordsPerRow] = useState(8);
@@ -75,20 +75,14 @@ export default function Ram() {
     return (value & 0xffff).toString(16).toUpperCase().padStart(4, "0");
   }
 
-  const lastNonZeroIndex = useMemo(
-      () => memory.reduce((last, value, i) => (Number(value) !== 0 ? i : last), 0),
-      [memory]
-  );
-
   type RamRow = { addr: number; words: number[] };
 
   const rows: RamRow[] = useMemo(() => {
-    const end = lastNonZeroIndex + 1;
     const out: RamRow[] = [];
 
     let currentRow = 0;
 
-    for (let start = firstIndex; start < end; start += wordsPerRow) {
+    for (let start = firstIndex; start < MEMORY_SIZE; start += wordsPerRow) {
       if (currentRow >= rowsNumber) break;
       console.log("currentRow", currentRow);
       console.log("rowsNumber", rowsNumber);
@@ -103,10 +97,7 @@ export default function Ram() {
     }
 
     return out;
-  }, [memory, lastNonZeroIndex, wordsPerRow, rowsNumber, firstIndex]);
-
-
-
+  }, [memory, wordsPerRow, rowsNumber, firstIndex]);
 
   const handleRun = () => {
     if (!state) return;
@@ -120,7 +111,7 @@ export default function Ram() {
 
   const scrollDown = () => {
     const newFirstIndex = firstIndex + rowsNumber * wordsPerRow;
-    setFirstIndex(Math.max(Math.min(newFirstIndex, lastNonZeroIndex - rowsNumber * wordsPerRow + 1), 0));
+    setFirstIndex(Math.max(Math.min(newFirstIndex, MEMORY_SIZE - rowsNumber * wordsPerRow), 0));
   };
 
   return (
@@ -184,8 +175,14 @@ export default function Ram() {
                     <div className="ram-grid" ref={row.addr === firstIndex ? gridWidthRef : undefined}>
                       {row.words.map((word, j) => {
                         const val = Number(word ?? 0);
+                        const cellAddr = row.addr + j;
+                        const isPC = cellAddr === (state?.pc ?? -1);
                         return (
-                            <div key={`${row.addr}-${j}`} className={`ram-cell ${val !== 0 ? "nonzero" : ""}`}>
+                            <div
+                                key={`${row.addr}-${j}`}
+                                className={`ram-cell ${val !== 0 ? "nonzero" : ""} ${isPC ? "pc" : ""}`}
+                                onClick={() => setRegister('pc', cellAddr)}
+                            >
                               {toHex16(val)}
                             </div>
                         );

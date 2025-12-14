@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import svgPaths from "./assets/svgs.ts";
 import "./filetab.css";
+import {useComputron} from "../api/ComputronContext.tsx";
 
 type FileTab = {
   id: string;
@@ -9,6 +10,9 @@ type FileTab = {
 };
 
 export default function FileTabs() {
+
+  const { compile } = useComputron();
+
   const [tabs, setTabs] = useState<FileTab[]>([
     { id: "1", name: "main.asm", content: "" },
     { id: "2", name: "utils.asm", content: "" },
@@ -29,13 +33,13 @@ export default function FileTabs() {
   };
 
   const handleCompile = () => {
-    console.log("Compile:", activeTab.name);
-    console.log(activeTab.content);
+    saveFile();
+    compile(activeTab.content, false);
   };
 
   const handleRun = () => {
-    console.log("Run:", activeTab.name);
-    console.log(activeTab.content);
+    saveFile();
+    compile(activeTab.content, true);
   };
 
   const handleCloseTab = (id: string) => {
