@@ -1,55 +1,25 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import svgPaths from "./assets/svgs.ts";
 import "./filetab.css";
 import {useComputron} from "../api/ComputronContext.tsx";
 
-type FileTab = {
-  id: string;
-  name: string;
-  content: string;
-};
-
 export default function FileTabs() {
 
-  const { compile } = useComputron();
-
-  const [tabs, setTabs] = useState<FileTab[]>([
-    { id: "1", name: "main.asm", content: "" },
-    { id: "2", name: "utils.asm", content: "" },
-  ]);
-
-  const [activeTabId, setActiveTabId] = useState("1");
-  const activeTab = tabs.find((t) => t.id === activeTabId)!;
+  const { compile, saveFile, files, activeFile, updateActiveFile, closeFile, setActiveFile, openFile } = useComputron();
 
   const editorWrapperRef = useRef<HTMLDivElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
 
-  const updateContent = (value: string) => {
-    setTabs((tabs) =>
-        tabs.map((tab) =>
-            tab.id === activeTabId ? { ...tab, content: value } : tab
-        )
-    );
-  };
-
   const handleCompile = () => {
     saveFile();
-    compile(activeTab.content, false);
+    if(activeFile) compile(activeFile.content, false);
   };
 
   const handleRun = () => {
     saveFile();
-    compile(activeTab.content, true);
+    if(activeFile) compile(activeFile.content, true);
   };
 
-  const handleCloseTab = (id: string) => {
-    if (tabs.length === 1) return;
-    const newTabs = tabs.filter((tab) => tab.id !== id);
-    setTabs(newTabs);
-    if (id === activeTabId) setActiveTabId(newTabs[0].id);
-  };
-
-  const lines = Math.max(activeTab.content.split("\n").length, 1);
 
   const syncScroll = () => {
     if (!editorWrapperRef.current || !lineNumbersRef.current) return;
@@ -57,24 +27,26 @@ export default function FileTabs() {
     lineNumbersRef.current.scrollTop = scrollTop;
   };
 
+  const lines = activeFile ? Math.max(activeFile.content.split("\n").length, 1) : 1;
+
   return (
       <div className="files-container container">
+        <button onClick ={openFile} > open file </button>
         {/* Tabs header */}
         <div className="file-tabs-container">
-          <div className="tabs-section text-font-bold">
-            {tabs.map((tab) => {
-              const isActive = tab.id === activeTabId;
+          <div className="text-font-bold tabs-section ">
+            {files.map((file) => {
+              const isActive = activeFile?.name === file.name; // або порівнювати path
               return (
                   <div
-                      key={tab.id}
+                      key={file.name}
                       className={`tab ${isActive ? "active" : "inactive"}`}
-                      onClick={() => setActiveTabId(tab.id)}
+                      onClick={() => setActiveFile(file)}
                   >
-                    <span className="tab-name">{tab.name}</span>
-                    {tabs.length > 1 && (
+                    <span className="tab-name">{file.name}</span>
                         <button
                             className="tab-close-btn"
-                            onClick={(e) => { e.stopPropagation(); handleCloseTab(tab.id); }}
+                            onClick={(e) => { e.stopPropagation(); closeFile(file); }}
                         >
                           <svg className="close-icon" fill="none" viewBox="0 0 9 9">
                             <path
@@ -86,7 +58,6 @@ export default function FileTabs() {
                             />
                           </svg>
                         </button>
-                    )}
                   </div>
               );
             })}
@@ -130,10 +101,11 @@ export default function FileTabs() {
 
             <textarea
                 className="code-editor"
-                value={activeTab.content}
-                onChange={(e) => updateContent(e.target.value)}
+                value={activeFile ? activeFile.content : ""}
+                onChange={(e) => updateActiveFile(e.target.value)}
                 spellCheck={false}
                 rows={lines}
+                disabled={!activeFile}
             />
           </div>
         </div>
