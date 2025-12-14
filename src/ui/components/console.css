@@ -1,8 +1,9 @@
 .console-container{
     display: flex;
     flex-direction: column;
+    /*flex: 3;*/
     flex: 0 0 auto;
-    width: 260px; /**/
+    /*width: 260px; !**!*/
     min-width: 155px;
     background: var(--console-gradient);
     transition: width 0.25s ease;
@@ -63,7 +64,7 @@
 }
 
 .console-container.collapsed .collapse-button {
-    margin-top: 6px;   /* підбери значення */
+    /*margin-top: 6px;   !* підбери значення *!*/
 }
 
 /* відкрита → стрілка вліво */
