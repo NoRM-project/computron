@@ -3,7 +3,7 @@
     flex-direction: column;
     flex: 5;
     min-width: 417px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     border: 1px solid #6e6565;
     background: radial-gradient(
             ellipse at 23% 87%,
@@ -18,21 +18,26 @@
 .file-tabs-container {
     display: flex;
     align-items: flex-end;
-    justify-content: space-between;
-    border-bottom: var(--border-width) solid;
-    border-image: var(--gradient-border-image);
-    position: relative;
+    justify-content: flex-start; /* not space-between */
     width: 100%;
+}
+
+.file-tabs-scrollable {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .tabs-section {
     display: flex;
     align-items: center;
     gap: 0;
+    flex-wrap: nowrap;
+    width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
-    border-radius: 0 var(--border-radius-mini) 0 0;
-    /*width: 50%;*/
+    border-radius: 0 var(--border-radius) 0 0;
 }
 
 .tabs-section::-webkit-scrollbar{
@@ -45,7 +50,7 @@
     justify-content: center;
     gap: 10px;
     padding: 7px 10px;
-    border-radius: 8px 8px 0 0;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     font-size: 12px;
@@ -98,6 +103,7 @@
 }
 
 .actions-section {
+    flex: 0 0 auto;
     padding: 10px;
     height: 100%;
     display: flex;
