@@ -1,0 +1,46 @@
+.menu-container {
+    position: relative;
+    width: 100%;
+    background: var(--menu-gradient);
+    color: var(--white);
+    padding: 12px;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+.menu-button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.menu-button:hover {
+    background-color: #444;
+}
+
+/* Popper menu styling */
+.popup-paper {
+    min-width: 160px;
+    background-color: #222;
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.popup-menu-item {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.popup-menu-item:hover {
+    background-color: #555;
+}
+
+.popup-divider {
+    border-color: #444;
+}
