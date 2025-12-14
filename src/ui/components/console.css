@@ -1,9 +1,24 @@
 .console-container{
     display: flex;
     flex-direction: column;
-    flex: 3;
+    flex: 0 0 auto;
+    width: 260px; /**/
     min-width: 155px;
     background: var(--console-gradient);
+    transition: width 0.25s ease;
+    /*overflow: hidden;*/
+}
+
+.console-container.collapsed {
+    width: 32px;
+    min-width: 32px;
+    padding: 4px;
+}
+
+.console-container.collapsed .console-title,
+.console-container.collapsed .clean-up,
+.console-container.collapsed .console-output {
+    display: none;
 }
 
 .console-header{
@@ -13,6 +28,11 @@
     flex-direction: row;
     justify-content: space-between;
 }
+
+.console-container.collapsed .console-header {
+    justify-content: center;
+}
+
 
 .console-output{
     border-top: var(--border-width) solid;
@@ -37,9 +57,21 @@
 .clean-up{
 }
 
-.collapse-button{
+
+.collapse-button svg {
+    transition: transform 0.2s ease;
 }
 
-.console-container.collapsed .collapse-button svg {
+.console-container.collapsed .collapse-button {
+    margin-top: 6px;   /* підбери значення */
+}
+
+/* відкрита → стрілка вліво */
+.console-container:not(.collapsed) .collapse-button svg {
     transform: rotate(-90deg);
+}
+
+/* закрита → стрілка вправо */
+.console-container.collapsed .collapse-button svg {
+    transform: rotate(90deg);
 }
