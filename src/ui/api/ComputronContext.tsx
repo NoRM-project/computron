@@ -5,11 +5,11 @@ type ConsoleData = {
     value: string;
 };
 
-// type File = {
-//     path: string;
-//     name: string;
-//     content: string;
-// }
+type File = {
+    path: string;
+    name: string;
+    content: string;
+}
 
 // До цього обєкту ви матимете доступ з будь якого компоненту, для використання достаньо використати хук на useComputron() 
 // Приклад: const { state, compile, run, consoleOutput } = useComputron();
@@ -17,6 +17,7 @@ type ConsoleData = {
 type ComputronContextType = {
     // поточний стан компутрона
     state: ComputronState | null;
+    files: File[];
 
     // Console -----------------------------------------
     // поле значень в консолі, при вводі тип інпут, з беку іде аутпут
@@ -42,6 +43,9 @@ type ComputronContextType = {
     setRegister: (reg: Register, value: number) => void;
     // наставити ячейку пам'яті під програм каунтером на значення
     setMemoryCell: (value: number) => void;
+
+    loadRam: (path: string) => FileResult<void>;
+    storeRam: (path: string) => FileResult<void>;
 };
 
 const ComputronContext = createContext<ComputronContextType | undefined>(undefined);
@@ -54,6 +58,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     }
 
     const [state, setState] = useState<ComputronState | null>(null);
+    const [files, setFiles] = useState<File[]>([]);
 
     useEffect(() => {
         let alive = true;
@@ -100,6 +105,8 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
             setInputRequested(false);
             window.electronAPI.consoleInput(value);
         },
+        loadRam: window.electronAPI.loadRamFromFile,
+        storeRam: window.electronAPI.saveRamToFile,
     };
 
     return <ComputronContext.Provider value={value}>{children}</ComputronContext.Provider>;

@@ -46,12 +46,12 @@ export default function FileTabs() {
     if (id === activeTabId) setActiveTabId(newTabs[0].id);
   };
 
-  const handleAddTab = () => {
-    const newId = String(Date.now());
-    const newTab: FileTab = { id: newId, name: `file${tabs.length + 1}.asm`, content: "" };
-    setTabs([...tabs, newTab]);
-    setActiveTabId(newId);
-  };
+  // const handleAddTab = () => {
+  //   const newId = String(Date.now());
+  //   const newTab: FileTab = { id: newId, name: `file${tabs.length + 1}.asm`, content: "" };
+  //   setTabs([...tabs, newTab]);
+  //   setActiveTabId(newId);
+  // };
 
   const lines = activeTab.content.split("\n").length;
 
@@ -63,11 +63,10 @@ export default function FileTabs() {
   };
 
   return (
-      <div className="files-container">
-
+      <div className="files-container container">
         {/* Tabs header */}
         <div className="file-tabs-container">
-          <div className="tabs-section">
+          <div className="tabs-section text-font-bold">
             {tabs.map((tab) => {
               const isActive = tab.id === activeTabId;
               return (
@@ -96,7 +95,7 @@ export default function FileTabs() {
                   </div>
               );
             })}
-            <button className="add-tab-btn" onClick={handleAddTab}>+</button>
+            {/*<button className="add-tab-btn" onClick={handleAddTab}>+</button>*/}
           </div>
 
           <div className="actions-section">

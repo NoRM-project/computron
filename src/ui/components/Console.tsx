@@ -20,7 +20,7 @@ export default function Console() {
 
   return (
     <div className={`console-container container ${collapsed ? 'collapsed' : ''}`}>
-        <div className="console-header">
+        <div className="console-header headers-font">
             <div >
                 <button className="collapse-button" onClick={() => setCollapsed(c => !c)}>
                     <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">

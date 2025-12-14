@@ -4,7 +4,7 @@
     height: 100%;
     padding: 0 10px;
     min-height: 0;
-    max-width: 455px;
+    /*max-width: 455px;*/
 }
 
 .ram-header {
@@ -115,6 +115,7 @@
     inset: 0;
     pointer-events: none;
     z-index: 10;
+    width: 100%;
 }
 
 .ram-scroll-area {
@@ -124,10 +125,12 @@
 
 .ram-scroll-up {
     top: 4px;
+    width: 100%;
 }
 
 .ram-scroll-down {
     bottom: 2px;
+    width: 100%;
 }
 
 .ram-table:hover .ram-scroll {

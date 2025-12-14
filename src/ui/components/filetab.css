@@ -19,8 +19,8 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    padding: 10px 10px 0 10px;
-    border-bottom: 1px solid rgba(115, 123, 123, 0.3);
+    border-bottom: var(--border-width) solid;
+    border-image: var(--gradient-border-image);
     position: relative;
     width: 100%;
 }
@@ -30,6 +30,7 @@
     align-items: center;
     gap: 0;
 }
+
 
 .tab {
     display: flex;
@@ -65,10 +66,10 @@
 }
 
 .tab-close-btn {
+    background-color: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: none;
     border: none;
     padding: 0;
     cursor: pointer;
@@ -101,6 +102,8 @@
 }
 
 .actions-section {
+    padding: 10px;
+    height: 100%;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -143,7 +146,6 @@
 /* Editor styles */
 .editor-wrapper {
     display: flex;
-    border-top: var(--border);
     position: relative;
     overflow: auto; /* робимо scrollable контейнер */
     flex: 1 1 0;
@@ -155,7 +157,6 @@
     flex-direction: column;
     padding: 5px 7px 0 7px;
     background-color: rgba(0, 0, 0, 0.2);
-    color: white;
     font-family: 'Inter', sans-serif;
     font-size: 12px;
     line-height: 1.4;
@@ -179,9 +180,9 @@
     border: none;
     outline: none;
     resize: none;
-    overflow: hidden; /* scroll не у textarea, а у wrapper */
     white-space: pre;
     border-bottom-right-radius: 6px;
+    overflow: hidden;
 }
 
 .code-editor::placeholder {
