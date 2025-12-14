@@ -73,7 +73,7 @@ function DropdownMenu({ label, items }: MenuProps) {
 export default function MenuBar() {
     return (
         <div className="menu-bar">
-            <DropdownMenu label="File" items={['New', 'Open', 'divider', 'Save', 'Exit']} />
+            <DropdownMenu label="File" items={['New', 'Open', 'divider', 'Save', 'Save as', 'divider', 'Exit']} />
             <DropdownMenu label="Settings" items={['Preferences', 'Theme', 'divider', 'Extensions']} />
             <DropdownMenu label="View" items={['Zoom In', 'Zoom Out', 'Full Screen']} />
             <DropdownMenu label="Help" items={['Documentation', 'Check for Updates', 'About']} />
