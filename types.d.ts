@@ -10,6 +10,8 @@ type ComputronState = {
     memory: Array<number>;
 }
 
+type InputType = 'int' | 'char' | 'float' | null
+
 type FileResult<T> =
     | { success: true; data: T }
     | { success: false; error: string };
@@ -20,7 +22,7 @@ interface Window {
         run(): void;
         setRegister(register: Register, value: number): void;
         setMemoryCell(value: number): void;
-        consoleInput(value: number): void;
+        consoleInput(value: string): void;
         selectFile(path: string): FileResult<string>;
         saveFile(newContent: string): FileResult<void>;
         loadRamFromFile(path: string): FileResult<void>;
@@ -28,7 +30,7 @@ interface Window {
         getInitialComputronState(): Promise<ComputronState>;
         onComputronUpdate(cb: (state: ComputronState) => void): () => void;
         onConsoleOutput(cb: (value: string) => void): () => void;
-        onRequestInput(cb: (value: number) => void): () => void;
+        onRequestInput(cb: (type:InputType) => void): () => void;
         askOpenFilePath(options?: Electron.OpenDialogOptions): Promise<string | null>,
         askSavingPath(options?: Electron.SaveDialogOptions): Promise<string | null>,
     }

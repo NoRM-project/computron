@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+// import {Connect} from "vite";
+
+
 
 type ConsoleData = {
     type: 'in' | 'out';
@@ -25,9 +28,9 @@ type ComputronContextType = {
     // функція для очистки консолі, просто для зручності
     cleanConsole: () => void;
     // передати ввід з консолі
-    consoleInput: (value: number) => void;
+    consoleInput: (value: string) => void;
     // змінна яка визначає чи потрібен ввід в консоль
-    inputRequested: boolean;
+    inputRequested: InputType;
 
     // Files -------------------------------------------
     // скомпілювати (опціонально ранити) актуальний файл
@@ -44,9 +47,12 @@ type ComputronContextType = {
     // наставити ячейку пам'яті під програм каунтером на значення
     setMemoryCell: (value: number) => void;
 
-    loadRam: (path: string) => FileResult<void>;
-    storeRam: (path: string) => FileResult<void>;
+    loadRam: () => void;
+    storeRam: () => void;
 };
+
+
+
 
 const ComputronContext = createContext<ComputronContextType | undefined>(undefined);
 
@@ -56,6 +62,37 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         console.log(value);
         setState(value);
     }
+
+    const handleLoad = () => {
+        window.electronAPI.askOpenFilePath({
+            filters: [
+                { name: "Binary files", extensions: ["bin"] },
+                { name: "All Files", extensions: ["*"] },
+            ]
+        }).then(path => {
+            if (path) {
+                window.electronAPI.loadRamFromFile(path);
+            } else {
+                console.error("Failed to load Ram");
+            }
+        })
+    };
+
+    const handleStore = () => {
+        window.electronAPI.askSavingPath({
+            defaultPath: "memory.bin",
+            filters: [
+                { name: "Binary files", extensions: ["bin"] },
+                { name: "All Files", extensions: ["*"] },
+            ]
+        }).then(path => {
+            if (path) {
+                window.electronAPI.saveRamToFile(path);
+            } else {
+                console.error("Failed to save Ram");
+            }
+        })
+    };
 
     const [state, setState] = useState<ComputronState | null>(null);
     const [files, setFiles] = useState<File[]>([]);
@@ -73,7 +110,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     }, []);
 
     const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
-    const [inputRequested, setInputRequested] = useState<boolean>(false);
+    const [inputRequested, setInputRequested] = useState<InputType>(null);
 
     
     const cleanConsole = () => setConsoleOutput([]);
@@ -83,7 +120,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         const unsubscribeConsole = window.electronAPI.onConsoleOutput((value) => {
             setConsoleOutput(prev => [...prev, { type: 'out', value }]);
         });
-        const unsubscribeInput = window.electronAPI.onRequestInput(() => setInputRequested(true));
+        const unsubscribeInput = window.electronAPI.onRequestInput((type:InputType) => setInputRequested(type));
 
         return () => {
             unsubscribeUpdate();
@@ -94,6 +131,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
     const value: ComputronContextType = {
         state,
+        files,
         consoleOutput,
         inputRequested,
         compile: window.electronAPI.compile,
@@ -101,12 +139,12 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         run: window.electronAPI.run,
         setRegister: window.electronAPI.setRegister,
         setMemoryCell: window.electronAPI.setMemoryCell,
-        consoleInput: (value:number)=>{
-            setInputRequested(false);
+        consoleInput: (value:string)=>{
+            setInputRequested(null);
             window.electronAPI.consoleInput(value);
         },
-        loadRam: window.electronAPI.loadRamFromFile,
-        storeRam: window.electronAPI.saveRamToFile,
+        loadRam: handleLoad,
+        storeRam: handleStore,
     };
 
     return <ComputronContext.Provider value={value}>{children}</ComputronContext.Provider>;

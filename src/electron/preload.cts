@@ -16,7 +16,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     // наставити ячейку пам'яті під програм каунтером на значення
     setMemoryCell: (value: number) => ipcRenderer.send("setMemoryCell", {value}),
     // передати ввід з консолі
-    consoleInput: (value: number) => ipcRenderer.send("consoleInput", {value}), 
+    consoleInput: (value: string) => ipcRenderer.send("consoleInput", {value}),
     
     // інвоук означає що ми чекаємо на відповідь хендлера і результат який він нам верне. В даному випадку успіх/неуспіх і зміст файлу
     selectFile: (path: string) => ipcRenderer.invoke("selectFile", {path}), // тут параметри залежать від того чи хочете ви таби. Один із параметрів точно path вибраного файлу. Як ретурн успіх/неуспіх і контент файлу
@@ -45,8 +45,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
         ipcRenderer.on("consoleOutput", handler);
         return () => ipcRenderer.removeListener("consoleOutput", handler);
     },
-    onRequestInput: (cb: (value: number) => void) => {
-        const handler = (_: any, value: number) => cb(value);
+    onRequestInput: (cb: (value: InputType) => void) => {
+        const handler = (_: any, value: InputType) => cb(value);
         ipcRenderer.on("requestInput", handler);
         return () => ipcRenderer.removeListener("requestInput", handler);
     }

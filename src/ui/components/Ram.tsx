@@ -22,7 +22,7 @@ function calcRowsNumber(containerHeight: number) {
 }
 
 export default function Ram() {
-  const { state, run } = useComputron();
+  const { state, run, loadRam, storeRam } = useComputron();
 
   const gridWidthRef = useRef<HTMLDivElement>(null);
   const [wordsPerRow, setWordsPerRow] = useState(8);
@@ -106,36 +106,7 @@ export default function Ram() {
   }, [memory, lastNonZeroIndex, wordsPerRow, rowsNumber, firstIndex]);
 
 
-  const handleLoad = () => {
-    window.electronAPI.askOpenFilePath({
-      filters: [
-        { name: "Binary files", extensions: ["bin"] },
-        { name: "All Files", extensions: ["*"] },
-      ]
-    }).then(path => {
-      if (path) {
-        window.electronAPI.loadRamFromFile(path);
-      } else {
-        console.error("Failed to load Ram");
-      }
-    })
-  };
 
-  const handleStore = () => {
-    window.electronAPI.askSavingPath({
-      defaultPath: "memory.bin",
-      filters: [
-        { name: "Binary files", extensions: ["bin"] },
-        { name: "All Files", extensions: ["*"] },
-      ]
-    }).then(path => {
-      if (path) {
-        window.electronAPI.saveRamToFile(path);
-      } else {
-        console.error("Failed to save Ram");
-      }
-    })
-  };
 
   const handleRun = () => {
     if (!state) return;
@@ -159,14 +130,14 @@ export default function Ram() {
           <div className="ram-title">RAM</div>
           <div className="ram-controls">
             <div className="ram-buttons-left">
-              <button className="ram-button" onClick={() => { if (handleLoad) handleLoad();}}>
+              <button className="ram-button" onClick={() => loadRam()}>
                 <svg className="button-icon-svg" fill="none" viewBox="0 0 10 10">
                   <path d={svgIcons.ram_load} fill="white" />
 
                 </svg>
                 Load
               </button>
-              <button className="ram-button" onClick={() => { if (handleStore) handleStore();}}>
+              <button className="ram-button" onClick={() => storeRam()}>
                 <svg className="button-icon-svg" fill="none" viewBox="0 0 10 10">
                   <path d={svgIcons.ram_store} fill="white" />
                 </svg>
