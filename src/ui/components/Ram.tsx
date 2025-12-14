@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useComputron } from "../api/ComputronContext";
 import svgIcons from "./assets/svgs.ts";
 import "./ram.css";
@@ -7,7 +8,7 @@ const WORDS_PER_ROW = 8;
 const MEMORY_SIZE = 65536;
 
 export default function Ram() {
-  const { state, setMemoryCell, run } = useComputron();
+  const { state, run } = useComputron();
 
   const memory = state?.memory ?? (() => {
     const mem = new Array(MEMORY_SIZE).fill(0);
@@ -66,6 +67,32 @@ export default function Ram() {
     run();
   };
 
+
+  const tableRef = useRef<HTMLDivElement>(null);
+  const scrollInterval = useRef<number | null>(null);
+
+  const startScrollUp = () => {
+    stopScroll();
+    scrollInterval.current = window.setInterval(() => {
+      tableRef.current?.scrollBy({ top: -6 });
+    }, 16); // ~60fps
+  };
+
+  const startScrollDown = () => {
+    stopScroll();
+    scrollInterval.current = window.setInterval(() => {
+      tableRef.current?.scrollBy({ top: 6 });
+    }, 16);
+  };
+
+  const stopScroll = () => {
+    if (scrollInterval.current !== null) {
+      clearInterval(scrollInterval.current);
+      scrollInterval.current = null;
+    }
+  };
+
+
   return (
       <div className="ram-wrapper">
         {/* Title, 3 buttons*/}
@@ -98,38 +125,60 @@ export default function Ram() {
 
 
         <div className="ram-table">
-          <div className="ram-container">
-            {rows.map((rowWords, i) => {
-              const addr = base + i * WORDS_PER_ROW * 2;
-              // console.log(addr);
-              // console.log(rowWords);
-              // // print all words in the row
-              // rowWords.forEach((word, i) => {
-              //   console.log(`  Word ${i}: ${word}`);
-              // })
+
+          <div className="ram-scroll-overlay">
+            <div
+                className="ram-scroll ram-scroll-up"
+                onMouseEnter={startScrollUp}
+                onMouseLeave={stopScroll}
+            >
+              ▲
+            </div>
+
+            <div
+                className="ram-scroll ram-scroll-down"
+                onMouseEnter={startScrollDown}
+                onMouseLeave={stopScroll}
+            >
+              ▼
+            </div>
+          </div>
 
 
-              return (
-                  <div key={addr} className="ram-row">
-                    {/* Address */}
-                    <div className="ram-addr-column">
-                      0x{addr.toString(16).toUpperCase().padStart(4, "0")}
+          <div className="ram-scroll-area" ref={tableRef}>
+            <div className="ram-container">
+              {rows.map((rowWords, i) => {
+                const addr = base + i * WORDS_PER_ROW * 2;
+                // console.log(addr);
+                // console.log(rowWords);
+                // // print all words in the row
+                // rowWords.forEach((word, i) => {
+                //   console.log(`  Word ${i}: ${word}`);
+                // })
+
+
+                return (
+                    <div key={addr} className="ram-row">
+                      {/* Address */}
+                      <div className="ram-addr-column">
+                        0x{addr.toString(16).toUpperCase().padStart(4, "0")}
+                      </div>
+
+                      {/*Corresponding line of words*/}
+                      <div className="ram-grid">
+                        {rowWords.map((word, j) => {
+                          const val = Number(word ?? 0);
+                          return (
+                              <div key={j} className={`ram-cell ${val !== 0 ? "nonzero" : ""}`}>
+                                {toHex16(val)}
+                              </div>
+                          );
+                        })}
+                      </div>
                     </div>
-
-                    {/*Corresponding line of words*/}
-                    <div className="ram-grid">
-                      {rowWords.map((word, j) => {
-                        const val = Number(word ?? 0);
-                        return (
-                            <div key={j} className={`ram-cell ${val !== 0 ? "nonzero" : ""}`}>
-                              {toHex16(val)}
-                            </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
