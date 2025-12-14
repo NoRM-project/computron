@@ -1,5 +1,4 @@
 .console-container{
-    padding: 8px;
     display: flex;
     flex-direction: column;
     flex: 0 0 auto;
@@ -23,8 +22,8 @@
 }
 
 .console-header{
+    padding: 10px;
     align-items: center;
-    padding-bottom: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -36,7 +35,9 @@
 
 
 .console-output{
-    border-top: var(--border);
+    border-top: var(--border-width) solid;
+    border-image: var(--gradient-border-image);
+    padding-left: 10px;
     position: relative;
     overflow: auto;
     flex: 1 1 0;
@@ -46,7 +47,7 @@
 .console-header div{
     display: flex;
     flex-direction: row;
-    gap: 0.5rem;
+    gap: 5px;
 }
 
 .console-header button{
