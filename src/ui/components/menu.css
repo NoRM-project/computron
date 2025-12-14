@@ -1,7 +1,6 @@
 .menu-bar {
     width: 100%;
     background: var(--menu-gradient);
-    color: var(--white);
     padding: 12px;
     display: flex;
     flex-direction: row;
@@ -56,29 +55,3 @@
     border-color: #444;
 }
 
-
-/*.menu-item {*/
-/*    position: relative;*/
-/*}*/
-
-/*.popup-menu {*/
-/*    position: absolute;*/
-/*    top: 100%;*/
-/*    left: 0;*/
-/*    background-color: var(--background-color);*/
-/*    border: 1px solid var(--borders-color);*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*    min-width: 100px;*/
-/*    z-index: 10;*/
-/*}*/
-
-/*.popup-item {*/
-/*    padding: 5px 10px;*/
-/*    cursor: pointer;*/
-/*    color: var(--white);*/
-/*}*/
-
-/*.popup-item:hover {*/
-/*    background-color: #555;*/
-/*}*/
