@@ -8,6 +8,20 @@
     overflow: auto;
 }
 
+.application-body::-webkit-scrollbar{
+    display: none;
+}
+
+.application-body button{
+    color: var(--white);
+    background-color: var(--buttons-monotone-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    border-radius: 6px;
+    border: none;
+}
 
 
 .container {

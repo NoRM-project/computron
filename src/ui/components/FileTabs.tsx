@@ -123,7 +123,7 @@ export default function FileTabs() {
         </div>
 
         {/* Editor */}
-        <div className="editor-wrapper" ref={editorRef} onScroll={syncScroll}>
+        <div className="editor-wrapper scrollable" ref={editorRef} onScroll={syncScroll}>
           <div className="line-numbers" ref={lineNumbersRef}>
             {Array.from({ length: lines }, (_, i) => (
                 <div key={i}>{i + 1}</div>
