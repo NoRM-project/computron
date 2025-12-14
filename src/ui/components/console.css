@@ -17,6 +17,9 @@
 
 .console-output{
     border-top: var(--border);
+    position: relative;
+    overflow: auto;
+    flex: 1 1 0;
 }
 
 .console-header button{
@@ -43,4 +46,8 @@
 
 .collapse-button{
     background-color: var(--black);
+}
+
+.console-container.collapsed .collapse-button svg {
+    transform: rotate(-90deg);
 }
