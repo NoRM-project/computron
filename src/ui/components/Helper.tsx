@@ -7,6 +7,7 @@ export type Instruction = {
     code: string;
     name: string;
     attrib: string;
+    description: string;
 };
 
 export default function Helper() {
