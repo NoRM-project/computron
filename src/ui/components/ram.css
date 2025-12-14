@@ -139,7 +139,7 @@
 .ram-container {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 3px;
 }
 
 .ram-row {
@@ -172,7 +172,8 @@
 
 .ram-grid {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    justify-content: left;
 
     flex: 1 1 auto;
     min-width: 0;
@@ -180,15 +181,25 @@
 }
 
 .ram-cell {
-    width: 35px;
-    height: 15px;
+    flex: 0 0 40px;
+    /*min-width: 40px;*/
+    align-items: center;
+    align-content: center;
+    width: 40px;
+    height: 25px;
     text-align: center;
     font-family: 'Inter', sans-serif;
     font-size: 12px;
     color: white;
     line-height: 15px;
+    cursor: pointer;
 }
 
 .ram-cell.nonzero{
     color: #0d99ff;
+}
+
+.ram-cell.pc{
+    border: 1px solid #FFA629;
+    border-radius: 3px;
 }
