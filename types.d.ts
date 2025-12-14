@@ -12,7 +12,7 @@ type ComputronState = {
 
 type InputType = 'int' | 'char' | 'float' | null
 
-type File = {
+type ProgramFile = {
     path: string;
     name: string;
     content: string;
@@ -29,7 +29,7 @@ interface Window {
         setRegister(register: Register, value: number): void;
         setMemoryCell(value: number): void;
         consoleInput(value: string): void;
-        selectFile(path: string): Promise<FileResult<string>>;
+        openFile(path: string): Promise<FileResult<ProgramFile>>;
         saveFile(newContent: string): Promise<FileResult<void>>;
         loadRamFromFile(path: string): Promise<FileResult<void>>;
         saveRamToFile(path: string): Promise<FileResult<void>>;
