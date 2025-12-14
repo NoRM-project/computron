@@ -1,6 +1,8 @@
 import { RequestHandler } from "../requestHandler.js";
 import {loadBinaryFile, saveBinaryFile} from "../services/fileService.js";
 
+const MAX_INT = 65536;
+
 export class CPU {
     private static instance: CPU | null = null;
     private state: ComputronState = {
@@ -79,12 +81,21 @@ export class CPU {
     };
 
     addToPC(val: number) {
+        if (this.state.pc + val >= MAX_INT) {
+            this.runningSignal = false;
+            return;
+        }
         this.state.pc += val;
     };
 
     setPC(val: number) {
-        if (val < 0)
+        if (val >= MAX_INT || val < 0) {
+            this.runningSignal = false;
             return;
+        }
+        if (val < 0){
+            return;
+        }
         this.state.pc = val;
     };
 

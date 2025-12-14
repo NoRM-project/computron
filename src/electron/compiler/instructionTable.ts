@@ -2,7 +2,7 @@ import { CPU } from "./cpu.js";
 import { RequestHandler } from "../requestHandler.js";
 import { CommandDecimal } from "./commandEnum.js";
 
-type InstructionHandler = (cpu: CPU) => void;
+type InstructionHandler = (cpu: CPU) => void | Promise<void>;
 
 export const instructionTable: InstructionHandler[] = [];
 
@@ -62,6 +62,7 @@ instructionTable[CommandDecimal.INPC] = async (cpu) => {
     const val: number = inp.charCodeAt(0);
     cpu.setA(val);
     cpu.addToPC(1);
+    
 };
 
 // 7: INP A := typed_integer_value(); PC := PC + 1;
