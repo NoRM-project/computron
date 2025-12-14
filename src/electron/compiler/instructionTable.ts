@@ -58,7 +58,8 @@ instructionTable[CommandDecimal.EXIT] = (cpu) => {
 // 6: INPC A := typed_character_ascii_code(); PC := PC + 1;
 instructionTable[CommandDecimal.INPC] = async (cpu) => {
     const reqHandler = RequestHandler.getInstance();
-    const val = await reqHandler.requestInputFromFrontend();
+    const inp: string = await reqHandler.requestInputFromFrontend('char');
+    const val: number = inp.charCodeAt(0);
     cpu.setA(val);
     cpu.addToPC(1);
 };
@@ -66,17 +67,19 @@ instructionTable[CommandDecimal.INPC] = async (cpu) => {
 // 7: INP A := typed_integer_value(); PC := PC + 1;
 instructionTable[CommandDecimal.INP] = async (cpu) => {
     const reqHandler = RequestHandler.getInstance();
-    const inp = await reqHandler.requestInputFromFrontend();
-    cpu.setA(inp);
+    const inp: string = await reqHandler.requestInputFromFrontend('char');
+    const val: number = parseInt(inp);
+    cpu.setA(val);
     cpu.addToPC(1);
 };
 
 // 8: INPR R := typed_floating_point_value(); PC := PC + 1;
 instructionTable[CommandDecimal.INPR] = async (cpu) => {
     const reqHandler = RequestHandler.getInstance();
-    const inp = await reqHandler.requestInputFromFrontend();
+    const inp: string = await reqHandler.requestInputFromFrontend('float');
     // Expect inp to be a floating-point number (JS number)
-    cpu.setRFromFloat(inp);
+    const val = parseFloat(inp);
+    cpu.setRFromFloat(val);
     cpu.addToPC(1);
 };
 

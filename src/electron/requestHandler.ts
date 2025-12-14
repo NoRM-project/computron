@@ -13,7 +13,7 @@ export class RequestHandler {
         return RequestHandler.instance;
     }
 
-    requestInputFromFrontend(): Promise<number> {
+    requestInputFromFrontend(value: InputType): Promise<string> {
         const TIMEOUT_MS = 10000;
 
         return new Promise((resolve, reject) => {
@@ -31,7 +31,7 @@ export class RequestHandler {
                 ipcMain.removeListener("inputResponse", onResponse);
             }
 
-            const onResponse = (evt: Electron.IpcMainEvent, data: { value: number }) => {
+            const onResponse = (evt: Electron.IpcMainEvent, data: { value: string }) => {
                 if (typeof data?.value !== "number") {
                     return finish(() => reject(new Error("Invalid input value")));
                 }
@@ -39,7 +39,7 @@ export class RequestHandler {
             }
 
             // надсилаємо запит фронту з усіма перевірками (!)
-            this.win.webContents.send("requestInput");
+            this.win.webContents.send("requestInput", value);
             ipcMain.once("inputResponse", onResponse);
             const timer = setTimeout(() => {
                 finish(() => reject(new Error("Frontend input timeout")));
