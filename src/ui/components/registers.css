@@ -10,6 +10,7 @@
 }
 
 .registers-header {
+    user-select: none;
     padding: 10px 6px 10px 6px;
     color: #FFF;
     font-size: 14px;
@@ -31,6 +32,7 @@
 }
 
 .register-tab {
+    user-select: none;
     cursor: pointer;
     display: flex;
     width: 25px;
@@ -73,6 +75,7 @@
 }
 
 .number-input-title {
+    user-select: none;
     display: flex;
     width: 59px;
     height: 22px;

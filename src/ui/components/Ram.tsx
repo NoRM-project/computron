@@ -1,14 +1,59 @@
-import { useRef } from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import { useComputron } from "../api/ComputronContext";
 import svgIcons from "./assets/svgs.ts";
 import "./ram.css";
 
-// const ROWS = 8192;
-const WORDS_PER_ROW = 8;
 const MEMORY_SIZE = 65536;
+
+const CELL_W = 35;   // px (hex cell width)
+const CELL_GAP = 8;  // px (gap between cells)
+const ROW_H = 22;
+const ROW_GAP = 5;
+const ADDR_W = 66;
+
+function calcWordsPerRow(containerWidth: number) {
+  const perCell = CELL_W + CELL_GAP;
+  return Math.max(1, Math.floor((containerWidth + CELL_GAP) / perCell));
+}
+
+function calcRowsNumber(containerHeight: number) {
+  const perRow = ROW_H + ROW_GAP;
+  return Math.max(1, Math.floor((containerHeight + ROW_GAP) / perRow));
+}
 
 export default function Ram() {
   const { state, run } = useComputron();
+
+  const gridWidthRef = useRef<HTMLDivElement>(null);
+  const [wordsPerRow, setWordsPerRow] = useState(8);
+  const [rowsNumber, setRowsNumber] = useState(8);
+
+  const tableRef = useRef<HTMLDivElement>(null);
+
+  const [firstIndex, setFirstIndex] = useState(0)
+
+  useEffect(() => {
+    const el = tableRef.current;
+    if (!el) return;
+
+    const ro = new ResizeObserver(() => {
+      const rect = el.getBoundingClientRect();
+      setRowsNumber(calcRowsNumber(rect.height));
+
+      const gridWidth = rect.width - ADDR_W; // minus address column
+      setWordsPerRow(calcWordsPerRow(gridWidth));
+    });
+
+    ro.observe(el);
+
+    // initial
+    const rect = el.getBoundingClientRect();
+    setRowsNumber(calcRowsNumber(rect.height));
+    setWordsPerRow(calcWordsPerRow(rect.width - ADDR_W));
+
+    return () => ro.disconnect();
+  }, []);
+
 
   const memory = state?.memory ?? (() => {
     const mem = new Array(MEMORY_SIZE).fill(0);
@@ -23,43 +68,73 @@ export default function Ram() {
 
     mem[0x007F] = 0xDEAD;
 
-    // mem[0x0C05] = 0xDAD0;
-
     return mem;
   })();
-
-
-  // const pc = state?.pc ?? 0;
-  const base = 0;
 
   function toHex16(value: number): string {
     return (value & 0xffff).toString(16).toUpperCase().padStart(4, "0");
   }
 
-  const lastNonZeroIndex = memory.reduce(
-      (last, value, i) => (Number(value) !== 0 ? i : last),
-      0
+  const lastNonZeroIndex = useMemo(
+      () => memory.reduce((last, value, i) => (Number(value) !== 0 ? i : last), 0),
+      [memory]
   );
 
-  const totalRows = Math.ceil((lastNonZeroIndex + 1) / WORDS_PER_ROW);
-  const slice = memory.slice(0, lastNonZeroIndex + 1); // only up to last non-zero
-  const rows: number[][] = [];
+  type RamRow = { addr: number; words: number[] };
 
-  for (let i = 0; i < totalRows; i++) {
-    const start = i * WORDS_PER_ROW;
-    const end = start + WORDS_PER_ROW;
-    const row = slice.slice(start, end);
-    rows.push(row);
-  }
+  const rows: RamRow[] = useMemo(() => {
+    const end = lastNonZeroIndex + 1;
+    const out: RamRow[] = [];
 
+    let currentRow = 0;
+
+    for (let start = firstIndex; start < end; start += wordsPerRow) {
+      if (currentRow >= rowsNumber) break;
+      console.log("currentRow", currentRow);
+      console.log("rowsNumber", rowsNumber);
+
+      const words = memory.slice(start, start + wordsPerRow);
+
+      // optional: pad so every row has same number of cells
+      while (words.length < wordsPerRow) words.push(0);
+
+      out.push({ addr: start, words });
+      currentRow += 1;
+    }
+
+    return out;
+  }, [memory, lastNonZeroIndex, wordsPerRow, rowsNumber, firstIndex]);
 
 
   const handleLoad = () => {
-    // TODO
+    window.electronAPI.askOpenFilePath({
+      filters: [
+        { name: "Binary files", extensions: ["bin"] },
+        { name: "All Files", extensions: ["*"] },
+      ]
+    }).then(path => {
+      if (path) {
+        window.electronAPI.loadRamFromFile(path);
+      } else {
+        console.error("Failed to load Ram");
+      }
+    })
   };
 
   const handleStore = () => {
-    // TODO
+    window.electronAPI.askSavingPath({
+      defaultPath: "memory.bin",
+      filters: [
+        { name: "Binary files", extensions: ["bin"] },
+        { name: "All Files", extensions: ["*"] },
+      ]
+    }).then(path => {
+      if (path) {
+        window.electronAPI.saveRamToFile(path);
+      } else {
+        console.error("Failed to save Ram");
+      }
+    })
   };
 
   const handleRun = () => {
@@ -67,31 +142,15 @@ export default function Ram() {
     run();
   };
 
-
-  const tableRef = useRef<HTMLDivElement>(null);
-  const scrollInterval = useRef<number | null>(null);
-
-  const startScrollUp = () => {
-    stopScroll();
-    scrollInterval.current = window.setInterval(() => {
-      tableRef.current?.scrollBy({ top: -6 });
-    }, 16); // ~60fps
+  const scrollUp = () => {
+    const newFirstIndex = firstIndex - rowsNumber * wordsPerRow;
+    setFirstIndex(Math.max(newFirstIndex, 0));
   };
 
-  const startScrollDown = () => {
-    stopScroll();
-    scrollInterval.current = window.setInterval(() => {
-      tableRef.current?.scrollBy({ top: 6 });
-    }, 16);
+  const scrollDown = () => {
+    const newFirstIndex = firstIndex + rowsNumber * wordsPerRow;
+    setFirstIndex(Math.max(Math.min(newFirstIndex, lastNonZeroIndex - rowsNumber * wordsPerRow + 1), 0));
   };
-
-  const stopScroll = () => {
-    if (scrollInterval.current !== null) {
-      clearInterval(scrollInterval.current);
-      scrollInterval.current = null;
-    }
-  };
-
 
   return (
       <div className="ram-wrapper">
@@ -129,16 +188,14 @@ export default function Ram() {
           <div className="ram-scroll-overlay">
             <div
                 className="ram-scroll ram-scroll-up"
-                onMouseEnter={startScrollUp}
-                onMouseLeave={stopScroll}
+                onClick={scrollUp}
             >
               ▲
             </div>
 
             <div
                 className="ram-scroll ram-scroll-down"
-                onMouseEnter={startScrollDown}
-                onMouseLeave={stopScroll}
+                onClick={scrollDown}
             >
               ▼
             </div>
@@ -147,37 +204,24 @@ export default function Ram() {
 
           <div className="ram-scroll-area" ref={tableRef}>
             <div className="ram-container">
-              {rows.map((rowWords, i) => {
-                const addr = base + i * WORDS_PER_ROW * 2;
-                // console.log(addr);
-                // console.log(rowWords);
-                // // print all words in the row
-                // rowWords.forEach((word, i) => {
-                //   console.log(`  Word ${i}: ${word}`);
-                // })
-
-
-                return (
-                    <div key={addr} className="ram-row">
-                      {/* Address */}
-                      <div className="ram-addr-column">
-                        0x{addr.toString(16).toUpperCase().padStart(4, "0")}
-                      </div>
-
-                      {/*Corresponding line of words*/}
-                      <div className="ram-grid">
-                        {rowWords.map((word, j) => {
-                          const val = Number(word ?? 0);
-                          return (
-                              <div key={j} className={`ram-cell ${val !== 0 ? "nonzero" : ""}`}>
-                                {toHex16(val)}
-                              </div>
-                          );
-                        })}
-                      </div>
+              {rows.map((row) => (
+                  <div key={row.addr} className="ram-row">
+                    <div className="ram-addr-column">
+                      0x{row.addr.toString(16).toUpperCase().padStart(4, "0")}
                     </div>
-                );
-              })}
+
+                    <div className="ram-grid" ref={row.addr === firstIndex ? gridWidthRef : undefined}>
+                      {row.words.map((word, j) => {
+                        const val = Number(word ?? 0);
+                        return (
+                            <div key={`${row.addr}-${j}`} className={`ram-cell ${val !== 0 ? "nonzero" : ""}`}>
+                              {toHex16(val)}
+                            </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+              ))}
             </div>
           </div>
         </div>

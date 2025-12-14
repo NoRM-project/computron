@@ -75,6 +75,7 @@
 
 button {
     outline: none;
+    user-select: none;
 }
 
 input {

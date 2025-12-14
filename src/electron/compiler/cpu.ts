@@ -173,6 +173,10 @@ export class CPU {
         }
 
         this.state.memory = mem;
+
+        const reqHandler = RequestHandler.getInstance();
+        reqHandler.sendComputronUpdate(this.state);
+
         return { success: true, data: undefined };
     }
 
