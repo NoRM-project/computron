@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import {useEffect, useRef} from "react";
 import svgPaths from "./assets/svgs.ts";
 import "./filetab.css";
 import {useComputron} from "../api/ComputronContext.tsx";
@@ -20,6 +20,24 @@ export default function FileTabs() {
     if(activeFile) compile(activeFile.content, true);
   };
 
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = tabsScrollRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (el.scrollWidth <= el.clientWidth) return;
+
+      if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
 
   const syncScroll = () => {
     if (!editorWrapperRef.current || !lineNumbersRef.current) return;
@@ -35,7 +53,7 @@ export default function FileTabs() {
         {/* Tabs header */}
         <div className="file-tabs-container">
           <div className="file-tabs-scrollable">
-            <div className="text-font-bold tabs-section ">
+            <div className="text-font-bold tabs-section" ref={tabsScrollRef}>
               {files.map((file) => {
                 const isActive = activeFile?.name === file.name; // або порівнювати path
                 return (
