@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 // import {Connect} from "vite";
 
-
-
-type ConsoleData = {
+export type ConsoleData = {
     type: 'in' | 'out';
     value: string;
 };

@@ -45,6 +45,20 @@
     flex: 1 1 0;
 }
 
+.console-input-line {
+    display: flex;
+    gap: 4px;
+}
+
+.console-input-line input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-family: monospace;
+    width: 100%;
+}
+
 
 .console-header div{
     display: flex;
