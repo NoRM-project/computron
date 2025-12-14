@@ -34,33 +34,35 @@ export default function FileTabs() {
         <button onClick ={openFile} > open file </button>
         {/* Tabs header */}
         <div className="file-tabs-container">
-          <div className="text-font-bold tabs-section ">
-            {files.map((file) => {
-              const isActive = activeFile?.name === file.name; // або порівнювати path
-              return (
-                  <div
-                      key={file.name}
-                      className={`tab ${isActive ? "active" : "inactive"}`}
-                      onClick={() => setActiveFile(file)}
-                  >
-                    <span className="tab-name">{file.name}</span>
-                        <button
-                            className="tab-close-btn"
-                            onClick={(e) => { e.stopPropagation(); closeFile(file); }}
-                        >
-                          <svg className="close-icon" fill="none" viewBox="0 0 9 9">
-                            <path
-                                d={svgPaths.file_tab_close}
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="1.3"
-                            />
-                          </svg>
-                        </button>
-                  </div>
-              );
-            })}
+          <div className="file-tabs-scrollable">
+            <div className="text-font-bold tabs-section ">
+              {files.map((file) => {
+                const isActive = activeFile?.name === file.name; // або порівнювати path
+                return (
+                    <div
+                        key={file.name}
+                        className={`tab ${isActive ? "active" : "inactive"}`}
+                        onClick={() => setActiveFile(file)}
+                    >
+                      <span className="tab-name">{file.name}</span>
+                          <button
+                              className="tab-close-btn"
+                              onClick={(e) => { e.stopPropagation(); closeFile(file); }}
+                          >
+                            <svg className="close-icon" fill="none" viewBox="0 0 9 9">
+                              <path
+                                  d={svgPaths.file_tab_close}
+                                  stroke="currentColor"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="1.3"
+                              />
+                            </svg>
+                          </button>
+                    </div>
+                );
+              })}
+            </div>
           </div>
 
           <div className="actions-section">
