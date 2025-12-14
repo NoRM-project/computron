@@ -27,6 +27,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
     getInitialComputronState: () => ipcRenderer.invoke("getInitialComputronState"),
 
+    askOpenFilePath: (options?: Electron.OpenDialogOptions) => ipcRenderer.invoke("askOpenFilePath", options),
+    askSavingPath: (options?: Electron.SaveDialogOptions) => ipcRenderer.invoke("askSavingPath", options),
+
+
     // Як це працює:
     // onComputronUpdate є фактично сеттером колбек функції яка запуститься коли в ipc виникне івент computronUpdate, тобто коли десь запуститься ipcRenderer.send("computronUpdate", {state})
     // Тобто в реакті ти прописуєш функцію, яка хендлить подію коли бек відправляє оновлення свого статусу. Потім цю функцію передаєш як параметр до onComputronUpdate

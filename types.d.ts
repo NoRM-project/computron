@@ -29,5 +29,7 @@ interface Window {
         onComputronUpdate(cb: (state: ComputronState) => void): () => void;
         onConsoleOutput(cb: (value: string) => void): () => void;
         onRequestInput(cb: (value: number) => void): () => void;
+        askOpenFilePath(options?: Electron.OpenDialogOptions): Promise<string | null>,
+        askSavingPath(options?: Electron.SaveDialogOptions): Promise<string | null>,
     }
 }

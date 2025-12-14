@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from "electron";
+import { BrowserWindow, ipcMain, dialog } from "electron";
 import { loadTextFile, saveTextFile } from "./services/fileService.js";
 import { CPU } from "./compiler/cpu.js";
 import run from "./compiler/executer.js";
@@ -62,4 +62,37 @@ export function registerIPC(win: BrowserWindow) {
     ipcMain.handle("getInitialComputronState", async (evt) => {
         return cpu.getState();
     });
+
+    ipcMain.handle("askSavingPath", async (event, options?: Electron.SaveDialogOptions) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+
+        const dialogOptions: Electron.SaveDialogOptions = {
+            title: "Save file",
+            ...options,
+        };
+
+        const result = win
+            ? await dialog.showSaveDialog(win, dialogOptions)   // overload with window
+            : await dialog.showSaveDialog(dialogOptions);       // overload without window
+
+        return result.canceled ? null : (result.filePath ?? null);
+    });
+
+    ipcMain.handle("askOpenFilePath", async (event, options?: Electron.OpenDialogOptions) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+
+        const dialogOptions: Electron.OpenDialogOptions = {
+            title: "Open file",
+            properties: ["openFile"],
+            ...options,
+        };
+
+        const result = win
+            ? await dialog.showOpenDialog(win, dialogOptions)
+            : await dialog.showOpenDialog(dialogOptions);
+
+        if (result.canceled || result.filePaths.length === 0) return null;
+        return result.filePaths[0]; // single file path
+    });
+
 }

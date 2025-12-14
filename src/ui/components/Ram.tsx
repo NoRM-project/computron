@@ -107,11 +107,34 @@ export default function Ram() {
 
 
   const handleLoad = () => {
-    // TODO
+    window.electronAPI.askOpenFilePath({
+      filters: [
+        { name: "Binary files", extensions: ["bin"] },
+        { name: "All Files", extensions: ["*"] },
+      ]
+    }).then(path => {
+      if (path) {
+        window.electronAPI.loadRamFromFile(path);
+      } else {
+        console.error("Failed to load Ram");
+      }
+    })
   };
 
   const handleStore = () => {
-    // TODO
+    window.electronAPI.askSavingPath({
+      defaultPath: "memory.bin",
+      filters: [
+        { name: "Binary files", extensions: ["bin"] },
+        { name: "All Files", extensions: ["*"] },
+      ]
+    }).then(path => {
+      if (path) {
+        window.electronAPI.saveRamToFile(path);
+      } else {
+        console.error("Failed to save Ram");
+      }
+    })
   };
 
   const handleRun = () => {
