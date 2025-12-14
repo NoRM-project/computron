@@ -23,6 +23,7 @@
 }
 
 .console-header{
+    user-select: none;
     padding: 10px;
     align-items: center;
     display: flex;

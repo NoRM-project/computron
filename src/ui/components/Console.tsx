@@ -1,21 +1,21 @@
 import './console.css'
 import './assets/svgs.ts'
 import svgs from "./assets/svgs.ts";
-import {useEffect, useState} from "react";
+import {/*useEffect,*/ useState} from "react";
 
 export default function Console() {
     const [output, setOutput] = useState<string[]>([]);
     const [collapsed, setCollapsed] = useState(false);
 
     // test output
-    useEffect(() => {
-        let count = 0;
-        const interval = setInterval(() => {
-            setOutput((prev) => [...prev, `Output line ${count++}`]);
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, []);
+    // useEffect(() => {
+    //     let count = 0;
+    //     const interval = setInterval(() => {
+    //         setOutput((prev) => [...prev, `Output line ${count++}`]);
+    //     }, 1000);
+    //
+    //     return () => clearInterval(interval);
+    // }, []);
 
 
     return (
