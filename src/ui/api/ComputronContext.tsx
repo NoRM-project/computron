@@ -38,7 +38,8 @@ type ComputronContextType = {
     closeFile: (file:ProgramFile) => void;
     openFile:() => void;
     newFile: (name:string) => void;
-
+    updateActiveFile: (value: string) => void;
+    setActiveFile: (file: ProgramFile) => void;
 
     // Memory and Registers
     // запустити програму
@@ -72,13 +73,19 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     const handleOpenFile = async () => {
         const filePath = await window.electronAPI.askOpenFilePath({
             filters: [
-                { name: "Text file", extensions: ["text"] },
+                { name: "Text file", extensions: ["txt"] },
                 { name: "All Files", extensions: ["*"] },
             ],
         });
 
         if (!filePath) {
             console.error("Failed to open file");
+            return;
+        }
+
+        const existingFile = files.find(f => f.path === filePath);
+        if (existingFile) {
+            setActiveFile(existingFile);
             return;
         }
 
@@ -114,7 +121,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         if (activeFile) {
             const filePath = await window.electronAPI.askOpenFilePath({
                 filters: [
-                    { name: "Text file", extensions: ["text"] },
+                    { name: "Text file", extensions: ["txt"] },
                     { name: "All Files", extensions: ["*"] },
                 ],
             });
@@ -140,11 +147,28 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     }
 
     const handleCloseFile = (file: ProgramFile) => {
-        setFiles(prevFiles => prevFiles.filter(f => f !== file));
-        if (activeFile === file) {
-            setActiveFile(files[0]);
-        }
+        setFiles(prevFiles => {
+            const newFiles = prevFiles.filter(f => f !== file);
+            if (newFiles.length === 0) {
+                setActiveFile(null);
+            } else if (activeFile === file) {
+                setActiveFile(newFiles[0]);
+            }
+            return newFiles;
+        });
     };
+
+    const handleUpdateActiveFile = (value: string) => {
+        if (!activeFile) return;
+
+        setFiles(prevFiles =>
+            prevFiles.map(f =>
+                f === activeFile ? { ...f, content: value } : f
+            )
+        );
+        setActiveFile(prev => prev ? { ...prev, content: value } : null);
+    };
+
 
     const handleLoad = () => {
         window.electronAPI.askOpenFilePath({
@@ -232,6 +256,8 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         closeFile: handleCloseFile,
         openFile:handleOpenFile,
         newFile: handleNewFile,
+        updateActiveFile: handleUpdateActiveFile,
+        setActiveFile: setActiveFile,
     };
 
     return <ComputronContext.Provider value={value}>{children}</ComputronContext.Provider>;

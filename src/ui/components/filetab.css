@@ -29,6 +29,14 @@
     display: flex;
     align-items: center;
     gap: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-radius: 0 var(--border-radius-mini) 0 0;
+    /*width: 50%;*/
+}
+
+.tabs-section::-webkit-scrollbar{
+    display: none;
 }
 
 .tab {
@@ -44,6 +52,7 @@
     cursor: pointer;
     transition: background-color 0.2s;
     line-height: 1.4;
+    flex: 0 0 auto;
 }
 
 .tab.active {
@@ -64,15 +73,23 @@
     white-space: nowrap;
 }
 
-.tab-close-btn {
+.tab.active .tab-close-btn {
     background-color: transparent;
+    color: var(--text-dark);
+}
+
+.tab.inactive .tab-close-btn {
+    background-color: transparent;
+    color: var(--white);
+}
+
+.tab-close-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
     padding: 0;
     cursor: pointer;
-    color: #3b3a3b;
 }
 
 .close-icon {
