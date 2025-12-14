@@ -37,8 +37,6 @@ export default function Helper() {
                     </svg>
                 </div>
             </div>
-
-
             <InstructionTable instructions={search === '' ? instructions : instructions.filter(
                 instruction =>
                     instruction.name.toLowerCase().includes(search.toLowerCase()) ||

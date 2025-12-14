@@ -13,21 +13,23 @@ const Registers: React.FC = () => {
 
     return (
         <div className='registers-container'>
-            <div className='registers-header'>
-                Registers
-            </div>
-            <div className='register-tab-list'>
-                {registers.map((reg) => (
-                <div
-                    key={reg}
-                    className={`register-tab ${
-                    selectedTab === reg ? 'register-tab-selected' : ''
-                    }`}
-                    onClick={() => setSelectedTab(reg)}
-                >
-                    {reg.toUpperCase()}
+            <div>
+                <div className='registers-header'>
+                    Registers
                 </div>
-                ))}
+                <div className='register-tab-list'>
+                    {registers.map((reg) => (
+                        <div
+                            key={reg}
+                            className={`register-tab ${
+                                selectedTab === reg ? 'register-tab-selected' : ''
+                            }`}
+                            onClick={() => setSelectedTab(reg)}
+                        >
+                            {reg.toUpperCase()}
+                        </div>
+                    ))}
+                </div>
             </div>
             <WordSelector
                 wordType='cpu'

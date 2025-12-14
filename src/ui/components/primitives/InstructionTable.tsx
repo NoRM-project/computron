@@ -7,8 +7,8 @@ type Props = {
 
 const InstructionTable = ({ instructions }: Props) => {
     return (
-        <table className="instruction-table">
-            <tbody>
+        <table className="instruction-table ">
+            <tbody className="scrollable">
             {instructions.map((ins) => (
                 <InstructionTableRow key={ins.code} instruction={ins} />
             ))}
