@@ -1,0 +1,177 @@
+.files-container {
+    display: flex;
+    flex-direction: column;
+    flex: 5;
+    min-width: 417px;
+    border-radius: 8px;
+    border: 1px solid #6e6565;
+    background: radial-gradient(
+            ellipse at 23% 87%,
+            rgba(104, 91, 73, 1) 0%,
+            rgba(80, 77, 71, 1) 51.818%,
+            rgba(73, 73, 74, 1) 70.404%,
+            rgba(59, 60, 62, 1) 100%
+    );
+    overflow: hidden;
+}
+
+.file-tabs-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: var(--border-width) solid;
+    border-image: var(--gradient-border-image);
+    position: relative;
+    width: 100%;
+}
+
+.tabs-section {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 8px 8px 0 0;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    line-height: 1.4;
+}
+
+.tab.active {
+    background-color: white;
+    color: #3b3a3b;
+}
+
+.tab.inactive {
+    background-color: #747475;
+    color: white;
+}
+
+.tab.inactive:hover {
+    background-color: #858586;
+}
+
+.tab-name {
+    white-space: nowrap;
+}
+
+.tab-close-btn {
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #3b3a3b;
+}
+
+.close-icon {
+    width: 7px;
+    height: 7px;
+}
+
+.actions-section {
+    padding: 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 1px;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 6px;
+    height: 22px;
+    background-color: #747475;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    line-height: 1.4;
+}
+
+.action-btn:hover {
+    background-color: #858586;
+}
+
+.action-icon {
+    width: 16px;
+    height: 10px;
+    flex-shrink: 0;
+}
+
+.action-icon-play {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+}
+
+/* Editor styles - як у консолі */
+.editor-wrapper {
+    position: relative;
+    overflow: auto; /* скролбар тільки коли треба */
+    flex: 1 1 0;
+}
+
+.editor-content {
+    display: flex;
+    min-height: 100%;
+}
+
+.line-numbers {
+    display: flex;
+    flex-direction: column;
+    padding: 5px 7px 0 7px;
+    background-color: rgba(0, 0, 0, 0.2);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: right;
+    user-select: none;
+    border-bottom-left-radius: 6px;
+    color: rgba(255, 255, 255, 0.6);
+    flex-shrink: 0;
+    min-width: 40px;
+}
+
+.line-number {
+    line-height: 1.4;
+}
+
+.code-editor {
+    flex: 1;
+    padding: 5px 7px 0 7px;
+    background: transparent;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    border: none;
+    outline: none;
+    resize: none;
+    white-space: pre;
+    border-bottom-right-radius: 6px;
+    overflow: hidden;
+    width: 100%;
+    min-height: 100%;
+}
+
+.code-editor::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}

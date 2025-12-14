@@ -1,5 +1,5 @@
-import { BrowserWindow, ipcMain } from "electron";
-import { loadFile, saveFile } from "./services/fileService.js";
+import { BrowserWindow, ipcMain, dialog } from "electron";
+import { loadTextFile, saveTextFile } from "./services/fileService.js";
 import { CPU } from "./compiler/cpu.js";
 import run from "./compiler/executer.js";
 import { parseProgram } from "./parser/parser.js";
@@ -43,12 +43,56 @@ export function registerIPC(win: BrowserWindow) {
         cpu.setMemoryCell(data.value, pc)
     });
 
+    ipcMain.handle("loadRamFromFile", async (evt, args: { path: string }) => {
+        cpu.loadRamFromFile(args.path);
+    });
+
+    ipcMain.handle("saveRamToFile", async (evt, args: { path: string }) => {
+        cpu.saveRamToFile(args.path);
+    });
 
     ipcMain.handle("selectFile", async (evt, args: { path: string }) => {
-        return loadFile(args.path);
+        return loadTextFile(args.path);
     });
 
-    ipcMain.handle("saveFile", async (evt, args: { newContent: string }) => {
-        return saveFile(args.newContent);
+    ipcMain.handle("saveFile", async (evt, args: { path: string, newContent: string }) => {
+        return saveTextFile(args.path, args.newContent);
     });
+
+    ipcMain.handle("getInitialComputronState", async (evt) => {
+        return cpu.getState();
+    });
+
+    ipcMain.handle("askSavingPath", async (event, options?: Electron.SaveDialogOptions) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+
+        const dialogOptions: Electron.SaveDialogOptions = {
+            title: "Save file",
+            ...options,
+        };
+
+        const result = win
+            ? await dialog.showSaveDialog(win, dialogOptions)   // overload with window
+            : await dialog.showSaveDialog(dialogOptions);       // overload without window
+
+        return result.canceled ? null : (result.filePath ?? null);
+    });
+
+    ipcMain.handle("askOpenFilePath", async (event, options?: Electron.OpenDialogOptions) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+
+        const dialogOptions: Electron.OpenDialogOptions = {
+            title: "Open file",
+            properties: ["openFile"],
+            ...options,
+        };
+
+        const result = win
+            ? await dialog.showOpenDialog(win, dialogOptions)
+            : await dialog.showOpenDialog(dialogOptions);
+
+        if (result.canceled || result.filePaths.length === 0) return null;
+        return result.filePaths[0]; // single file path
+    });
+
 }

@@ -1,0 +1,81 @@
+.helper-container{
+    display: flex;
+    flex-direction: column;
+    flex: 3;
+    min-width: 155px;
+    background: var(--healper-gradient);
+    overflow: hidden;
+
+    /* critical for nested flex + scrolling */
+    min-height: 0;
+    max-height: 100%;   /* prevents growing beyond parent when parent has a height */
+}
+
+.helper-header{
+    display: flex;
+    padding: 10px;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.helper-input-wrapper{
+
+}
+
+.helper-input-wrapper svg{
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.helper-search{
+    background: none;
+    border: none;
+    font-size: 14px;
+    border-radius: var(--border-radius-mini);
+    padding: 3px 24px 3px 3px;
+    color: var(--white);
+    height: 22px;
+}
+
+.helper-search:focus{
+    border: none;
+    background-color: var(--transparent-background);
+}
+
+.instruction-table{
+    width: 100%;
+    border-collapse: collapse;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.instruction-table tbody{
+    display: block;
+    min-height: 0;
+}
+
+.table-row{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    font-size: 12px;
+    border-top: var(--border-width) solid;
+    border-image: var(--gradient-border-image);
+    box-sizing: border-box;
+}
+
+.table-row:nth-child(odd) {
+    background-color: var(--transparent-background);
+}
+
+.table-row td{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 33%;
+}

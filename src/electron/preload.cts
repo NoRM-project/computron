@@ -20,7 +20,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
     
     // інвоук означає що ми чекаємо на відповідь хендлера і результат який він нам верне. В даному випадку успіх/неуспіх і зміст файлу
     selectFile: (path: string) => ipcRenderer.invoke("selectFile", {path}), // тут параметри залежать від того чи хочете ви таби. Один із параметрів точно path вибраного файлу. Як ретурн успіх/неуспіх і контент файлу
-    saveFile: (newContent: string) => ipcRenderer.invoke("saveFile", {newContent}), // зберегти файл з яким ми моментально працюємо. Ретурн це успіх/неуспіх. Наполягаю не робити таби аби не ускладнювати
+    saveFile: (path: string, newContent: string) => ipcRenderer.invoke("saveFile", {path, newContent}), // зберегти файл з яким ми моментально працюємо. Ретурн це успіх/неуспіх. Наполягаю не робити таби аби не ускладнювати
+
+    loadRamFromFile: (path: string) => ipcRenderer.invoke("loadRamFromFile", {path}), // завантажити пам'ять з файлу
+    saveRamToFile: (path: string) => ipcRenderer.invoke("saveRamToFile", {path}), // зберегти пам'ять в файл
+
+    getInitialComputronState: () => ipcRenderer.invoke("getInitialComputronState"),
+
+    askOpenFilePath: (options?: Electron.OpenDialogOptions) => ipcRenderer.invoke("askOpenFilePath", options),
+    askSavingPath: (options?: Electron.SaveDialogOptions) => ipcRenderer.invoke("askSavingPath", options),
 
 
     // Як це працює:

@@ -1,3 +1,6 @@
+import { RequestHandler } from "../requestHandler.js";
+import {loadBinaryFile, saveBinaryFile} from "../services/fileService.js";
+
 export class CPU {
     private static instance: CPU | null = null;
     private state: ComputronState = {
@@ -7,7 +10,7 @@ export class CPU {
         x: 0,
         rh: 0,
         rl: 0,
-        memory: new Array<number>(),
+        memory: new Array<number>(65536).fill(0)
     };
     private runningSignal: boolean = false;
     private newInput: string = "";
@@ -65,14 +68,18 @@ export class CPU {
 
     setRegister(val: number, reg: Register) {
         this.state[reg] = val;
+        const reqHandler = RequestHandler.getInstance();
+        reqHandler.sendComputronUpdate(this.state);
     };
 
     setMemoryCell(val: number, index: number) {
         this.state.memory[index] = val;
+        const reqHandler = RequestHandler.getInstance();
+        reqHandler.sendComputronUpdate(this.state);
     };
 
     addToPC(val: number) {
-        this.state.pc =+ val;
+        this.state.pc += val;
     };
 
     setPC(val: number) {
@@ -141,5 +148,48 @@ export class CPU {
 
     getRunningSignal(): boolean {
         return this.runningSignal;
+    };
+
+    loadRamFromFile(path: string): FileResult<void> {
+        const result = loadBinaryFile(path);
+        if (!result.success) return result;
+
+        const buffer = result.data;
+
+        if (buffer.byteLength % 2 !== 0) {
+            return { success: false, error: "Invalid RAM file size" };
+        }
+
+        const view = new DataView(
+            buffer.buffer,
+            buffer.byteOffset,
+            buffer.byteLength
+        );
+
+        const mem: number[] = [];
+
+        for (let i = 0; i < buffer.byteLength; i += 2) {
+            mem.push(view.getUint16(i, true));
+        }
+
+        this.state.memory = mem;
+
+        const reqHandler = RequestHandler.getInstance();
+        reqHandler.sendComputronUpdate(this.state);
+
+        return { success: true, data: undefined };
+    }
+
+    saveRamToFile(path: string): FileResult<void> {
+        const mem = this.state.memory;
+
+        const buffer = new ArrayBuffer(mem.length * 2);
+        const view = new DataView(buffer);
+
+        for (let i = 0; i < mem.length; i++) {
+            view.setUint16(i * 2, mem[i] & 0xffff, true);
+        }
+
+        return saveBinaryFile(path, Buffer.from(buffer));
     }
 }
