@@ -49,5 +49,7 @@ interface Window {
         onRequestInput(cb: (type:InputType) => void): () => void;
         askOpenFilePath(options?: Electron.OpenDialogOptions): Promise<string | null>,
         askSavingPath(options?: Electron.SaveDialogOptions): Promise<string | null>,
+        onCompilationError(cb: (value: CompilationError) => void):() => void,
+        onExecutionError(cb: (value: ExecutionError) => void):() => void,
     }
 }
