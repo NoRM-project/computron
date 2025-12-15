@@ -28,6 +28,16 @@
     display: none;
 }
 
+.console-entry-input {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.console-entry-error {
+    color: #FE874A;
+}
+
 .console-header{
     user-select: none;
     padding: 10px;
@@ -53,7 +63,6 @@
 
 .console-input-line {
     display: flex;
-    gap: 4px;
 }
 
 .console-input-line input {
@@ -63,6 +72,7 @@
     color: white;
     font-family: "Inter", sans-serif;
     width: 100%;
+    align-content: center;
 }
 
 

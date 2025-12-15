@@ -22,7 +22,7 @@ function calcRowsNumber(containerHeight: number) {
 }
 
 export default function Ram() {
-  const { state, run, stop, loadRam, storeRam, setRegister } = useComputron();
+  const { state, run, stopProgram, loadRam, storeRam, setRegister } = useComputron();
 
   const gridWidthRef = useRef<HTMLDivElement>(null);
   const [wordsPerRow, setWordsPerRow] = useState(8);
@@ -106,7 +106,7 @@ export default function Ram() {
 
   const handleStop = () => {
     if (!state) return;
-    stop();
+    stopProgram();
   };
 
   const scrollUp = () => {

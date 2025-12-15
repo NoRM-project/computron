@@ -1,7 +1,7 @@
 import './console.css';
 import svgs from "./assets/svgs.ts";
 import { useEffect, useRef, useState } from "react";
-import {type ConsoleData, useComputron} from "../api/ComputronContext.tsx";
+import { type ConsoleData, useComputron } from "../api/ComputronContext.tsx";
 
 export default function Console() {
     const [collapsed, setCollapsed] = useState(false);
@@ -20,32 +20,35 @@ export default function Console() {
     const [inputKey, setInputKey] = useState(0);
     const bottomRef = useRef<HTMLDivElement>(null);
 
-    const INPUT_REGEX: Record<Exclude<InputType, null>, RegExp> = {
-        int: /^-?\d+$/,
-        float: /^-?\d+(\.\d+)?$/,
-        char: /^.$/
-    };
+    const RX = {
+        // allow empty while typing; submit will be stricter
+        intTyping: /^-?\d*$/,
+        intSubmit: /^-?\d+$/,
+
+        // float: allow "1", "1.", "1.2", ".2", "-.2" while typing
+        floatTyping: /^-?(?:\d*(?:\.\d*)?)$/,
+        // submit: require at least one digit somewhere
+        floatSubmit: /^-?(?:\d+(\.\d+)?|\.\d+)$/,
+
+        // char: allow empty while typing; submit requires exactly 1 char
+        charTyping: /^.?$/,
+        charSubmit: /^.$/,
+    } as const;
+
+    function getRegex(type: Exclude<InputType, null>, phase: 'typing' | 'submit') {
+        if (type === 'int') return phase === 'typing' ? RX.intTyping : RX.intSubmit;
+        if (type === 'float') return phase === 'typing' ? RX.floatTyping : RX.floatSubmit;
+        return phase === 'typing' ? RX.charTyping : RX.charSubmit;
+    }
 
     // ---- СИНХРОНІЗАЦІЯ з context
     useEffect(() => {
         if (computron.consoleOutput.length > 0) {
             setLocalConsoleOutput(prev => {
-                // Перевіряємо чи є нові записи
-                const lastLocal = prev[prev.length - 1];
-                const lastContext = computron.consoleOutput[computron.consoleOutput.length - 1];
-
-                // Якщо останній запис різний, додаємо нові
-                if (!lastLocal ||
-                    lastLocal.type !== lastContext.type ||
-                    lastLocal.value !== lastContext.value ||
-                    computron.consoleOutput.length > prev.length) {
-
-                    // Додаємо всі записи з context що відсутні локально
-                    const newEntries = computron.consoleOutput.slice(prev.length);
-                    return [...prev, ...newEntries];
-                }
-
-                return prev;
+                const newEntries = computron.consoleOutput.filter(entry =>
+                    !prev.some(e => e.type === entry.type && e.value === entry.value)
+                );
+                return [...prev, ...newEntries];
             });
         }
     }, [computron.consoleOutput]);
@@ -63,16 +66,17 @@ export default function Console() {
         }
     }, [inputRequested]);
 
-    // ---- SUBMIT
+    // ---- SUBMIT (uses submit-regex)
     const handleSubmit = () => {
-        if (inputValue === "" || inputRequested === null) return;
+        if (inputRequested === null) return;
 
-        const regex = INPUT_REGEX[inputRequested];
-        if (!regex.test(inputValue)) {
-            return;
-        }
+        const v = inputValue.trim();
+        if (v === "") return;
 
-        const submittedValue = inputValue;
+        const rx = getRegex(inputRequested, 'submit');
+        if (!rx.test(v)) return;
+
+        const submittedValue = v;
 
         // Додаємо input локально одразу
         setLocalConsoleOutput(prev => [
@@ -94,7 +98,7 @@ export default function Console() {
 
     // ---- ВИЗНАЧЕННЯ СТИЛЮ для різних типів
     const getEntryPrefix = (type: ConsoleData['type']) => {
-        switch(type) {
+        switch (type) {
             case 'out': return '>> ';
             case 'in': return '<< ';
             case 'err': return '!! ';
@@ -103,7 +107,7 @@ export default function Console() {
     };
 
     const getEntryClass = (type: ConsoleData['type']) => {
-        switch(type) {
+        switch (type) {
             case 'err': return 'console-entry-error';
             case 'in': return 'console-entry-input';
             case 'out': return 'console-entry-output';
@@ -149,15 +153,26 @@ export default function Console() {
 
                 {inputRequested !== null && (
                     <div className="console-input-line" key={`input-${inputKey}`}>
-                        {'<< '}
+                        <span className="prompt">{'<<'}&nbsp;</span>
                         <input
+                            className='text-font'
                             type="text"
-                            inputMode={inputRequested === 'char' ? 'text' : 'numeric'}
                             autoFocus
                             value={inputValue}
-                            onChange={e => setInputValue(e.target.value)}
+                            onChange={e => {
+                                const v = e.target.value;
+
+                                // live validation: block invalid keystrokes
+                                const rx = getRegex(inputRequested, 'typing');
+                                if (!rx.test(v)) return;
+
+                                setInputValue(v);
+                            }}
                             onKeyDown={e => {
-                                if (e.key === "Enter") handleSubmit();
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    handleSubmit();
+                                }
                             }}
                         />
                     </div>
