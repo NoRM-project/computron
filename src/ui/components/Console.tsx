@@ -3,7 +3,8 @@ import svgs from "./assets/svgs.ts";
 import { useEffect, useRef, useState } from "react";
 import {type ConsoleData, useComputron} from "../api/ComputronContext.tsx";
 
-const MOCK = false;
+const MOCK = true;
+const mock_value: Exclude<InputType, null> = 'int';
 
 export default function Console() {
     const [collapsed, setCollapsed] = useState(false);
@@ -13,14 +14,22 @@ export default function Console() {
 
     // ---- MOCK STATE
     const [mockOutput, setMockOutput] = useState<ConsoleData[]>([]);
-    const [mockInputRequested, setMockInputRequested] = useState(false);
+    const [mockInputRequested, setMockInputRequested] = useState<InputType>(null);
 
     // ---- ACTIVE SOURCE
     const consoleOutput = MOCK ? mockOutput : computron.consoleOutput;
-    const inputRequested = MOCK ? mockInputRequested : computron.inputRequested;
+    const inputRequested : InputType = MOCK ? mockInputRequested : computron.inputRequested;
 
     const [inputValue, setInputValue] = useState<string | "">("");
     const bottomRef = useRef<HTMLDivElement>(null);
+
+
+    const INPUT_REGEX: Record<Exclude<InputType, null>, RegExp> = {
+        int: /^-?\d+$/,
+        float: /^-?\d+(\.\d+)?$/,
+        char: /^.$/
+    };
+
 
     // ---- MOCK INIT
     useEffect(() => {
@@ -30,7 +39,7 @@ export default function Console() {
             { type: 'out', value: 'Program started' },
             { type: 'out', value: 'Enter number:' }
         ]);
-        setMockInputRequested(true);
+        setMockInputRequested(mock_value);
     }, []);
 
     // ---- AUTO SCROLL
@@ -38,23 +47,36 @@ export default function Console() {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [consoleOutput, inputRequested]);
 
+    useEffect(() => {
+        if (inputRequested !== null) {
+            setInputValue("");
+        }
+    }, [inputRequested]);
+
     // ---- SUBMIT
     const handleSubmit = () => {
-        if (inputValue === "") return;
+        if (inputValue === "" || inputRequested === null) return;
+
+        const regex = INPUT_REGEX[inputRequested];
+        if (!regex.test(inputValue)) {
+            // optionally show error / shake input
+            return;
+        }
 
         if (MOCK) {
             setMockOutput(prev => [
                 ...prev,
-                { type: 'in', value: String(inputValue) },
+                { type: 'in', value: inputValue },
                 { type: 'out', value: `Echo: ${inputValue}` }
             ]);
-            setMockInputRequested(true);
+            setMockInputRequested(mock_value);
         } else {
             computron.consoleInput(inputValue);
         }
 
         setInputValue("");
     };
+
 
     // ---- CLEAN
     const handleClean = () => {
@@ -98,18 +120,15 @@ export default function Console() {
                     </div>
                 ))}
 
-                {inputRequested && (
-                    <div className="console-input-line">
+                {inputRequested !== null && (
+                    <div className="console-input-line" key={inputRequested}>
                         {'<< '}
                         <input
-                            type="number"
+                            type="text"
+                            inputMode={inputRequested === 'char' ? 'text' : 'numeric'}
                             autoFocus
                             value={inputValue}
-                            onChange={e =>
-                                setInputValue(
-                                    e.target.value === "" ? "" : String(e.target.value)
-                                )
-                            }
+                            onChange={e => setInputValue(e.target.value)}
                             onKeyDown={e => {
                                 if (e.key === "Enter") handleSubmit();
                             }}
