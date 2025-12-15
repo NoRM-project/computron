@@ -37,6 +37,7 @@ interface Window {
     electronAPI: {
         compile(plaintextCode: string, runAfterCompilation: boolean): void;
         run(): void;
+        stop(): void;
         setRegister(register: Register, value: number): void;
         setMemoryCell(value: number): void;
         consoleInput(value: string): void;

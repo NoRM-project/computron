@@ -10,7 +10,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     // відправити код на компіляцію (і загрузити результат в меморі), булєвський параметр чи запускати програму
     compile: (plaintextCode: string, runAfterCompilation: boolean) => ipcRenderer.send("compile", {plaintextCode, runAfterCompilation}), 
     // запустити виконання програми
-    run: () => ipcRenderer.send("run"), 
+    run: () => ipcRenderer.send("run"),
+    stop: () => ipcRenderer.send("stop"),
     // наставити регістр такіто на значення такето
     setRegister: (register: Register, value: number) => ipcRenderer.send("setRegister", {register, value}),
     // наставити ячейку пам'яті під програм каунтером на значення
