@@ -3,7 +3,7 @@ import svgs from "./assets/svgs.ts";
 import { useEffect, useRef, useState } from "react";
 import {type ConsoleData, useComputron} from "../api/ComputronContext.tsx";
 
-const MOCK = true;
+const MOCK = false;
 
 export default function Console() {
     const [collapsed, setCollapsed] = useState(false);
