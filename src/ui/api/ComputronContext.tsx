@@ -3,13 +3,13 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 // import path from "path";
 
 export type ConsoleData = {
-    type: 'in' | 'out';
+    type: 'in' | 'out' | 'err';
     value: string;
 };
 
 
 
-// До цього обєкту ви матимете доступ з будь якого компоненту, для використання достаньо використати хук на useComputron() 
+// До цього обєкту ви матимете доступ з будь якого компоненту, для використання достаньо використати хук на useComputron()
 // Приклад: const { state, compile, run, consoleOutput } = useComputron();
 // PS я не до кінця впевнена що треба а що ні, тому якщо що треба буде розширювати
 type ComputronContextType = {
@@ -27,6 +27,7 @@ type ComputronContextType = {
     consoleInput: (value: string) => void;
     // змінна яка визначає чи потрібен ввід в консоль
     inputRequested: InputType;
+    compilationErrorLine: number|null;
 
     // Files -------------------------------------------
     // скомпілювати (опціонально ранити) актуальний файл
@@ -64,11 +65,18 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         setState(value);
     }
 
+    const firstFile: ProgramFile = {
+        path: undefined,
+        name: "Untitled.txt",
+        content: ""
+    }
+
     const [state, setState] = useState<ComputronState | null>(null);
-    const [files, setFiles] = useState<ProgramFile[]>([]);
-    const [activeFile, setActiveFile] = useState<ProgramFile | null>(null);
+    const [files, setFiles] = useState<ProgramFile[]>([firstFile]);
+    const [activeFile, setActiveFile] = useState<ProgramFile | null>(firstFile);
     const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
     const [inputRequested, setInputRequested] = useState<InputType>(null);
+    const [compilationErrorLine, setCompilationErrorLine] = useState<number|null>(null);
 
     const handleOpenFile = async () => {
         const filePath = await window.electronAPI.askOpenFilePath({
@@ -120,6 +128,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     const handleSaveAs = async () => {
         if (activeFile) {
             const filePath = await window.electronAPI.askSavingPath({
+                defaultPath: "Untitled.txt",
                 filters: [
                     { name: "Text file", extensions: ["txt"] },
                     { name: "All Files", extensions: ["*"] },
@@ -127,7 +136,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
             });
 
             if (!filePath) {
-                console.error("Failed to open file");
+                console.error("Failed to save file");
                 return;
             }
 
@@ -138,7 +147,9 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
                 return;
             }
 
-            handleCloseFile(activeFile);
+            // Store the old file's path/name to identify it
+            const oldFilePath = activeFile.path;
+
             const openingResult = await window.electronAPI.openFile(filePath);
 
             if (!openingResult.success) {
@@ -146,9 +157,17 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
                 return;
             }
 
-            const file = openingResult.data;
-            setFiles(prev => [...prev, file]);
-            setActiveFile(file);
+            const newFile = openingResult.data;
+
+            // Remove the old file using path comparison and add the new one
+            setFiles(prevFiles => {
+                const filteredFiles = prevFiles.filter(f =>
+                    !(f.path === oldFilePath)
+                );
+                return [...filteredFiles, newFile];
+            });
+
+            setActiveFile(newFile);
         }
     };
 
@@ -172,6 +191,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
     const handleUpdateActiveFile = (value: string) => {
         if (!activeFile) return;
+        setCompilationErrorLine(null)
 
         setFiles(prevFiles =>
             prevFiles.map(f =>
@@ -229,7 +249,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
 
 
-    
+
     const cleanConsole = () => setConsoleOutput([]);
 
     useEffect(() => {
@@ -238,11 +258,20 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
             setConsoleOutput(prev => [...prev, { type: 'out', value }]);
         });
         const unsubscribeInput = window.electronAPI.onRequestInput((type:InputType) => setInputRequested(type));
+        const unsubscribeCompErr = window.electronAPI.onCompilationError((value) => {
+            setConsoleOutput(prev => [...prev, { type: 'err', value: `Compilation error on line: ${value.line}\n ${value.error}` }]);
+            setCompilationErrorLine(value.line);
+        });
+        const unsubscribeExecutionError = window.electronAPI.onExecutionError((value) => {
+            setConsoleOutput(prev => [...prev, { type: 'err', value: `Execution error on PC: ${value.pc}\n ${value.error}`  }]);
+        });
 
         return () => {
             unsubscribeUpdate();
             unsubscribeConsole();
             unsubscribeInput();
+            unsubscribeCompErr();
+            unsubscribeExecutionError();
         };
     }, []);
 
@@ -252,6 +281,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         activeFile,
         consoleOutput,
         inputRequested,
+        compilationErrorLine,
         compile: window.electronAPI.compile,
         cleanConsole,
         run: window.electronAPI.run,

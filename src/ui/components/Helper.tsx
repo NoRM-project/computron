@@ -42,7 +42,8 @@ export default function Helper() {
                 instruction =>
                     instruction.name.toLowerCase().includes(search.toLowerCase()) ||
                     instruction.code.toLowerCase().includes(search.toLowerCase()) ||
-                    instruction.attrib.toLowerCase().includes(search.toLowerCase())
+                    instruction.attrib.toLowerCase().includes(search.toLowerCase()) ||
+                    instruction.description.toLowerCase().includes(search.toLowerCase())
             )}/>
         </div>
     );

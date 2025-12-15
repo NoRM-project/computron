@@ -12,12 +12,12 @@ export default function FileTabs() {
 
   const handleCompile = () => {
     saveFile();
-    if(activeFile) compile(activeFile.content, false);
+    if(activeFile) compile(activeFile.content.replaceAll("'", ""), false);
   };
 
   const handleRun = () => {
     saveFile();
-    if(activeFile) compile(activeFile.content, true);
+    if(activeFile) compile(activeFile.content.replaceAll("'", ""), true);
   };
 
   const tabsScrollRef = useRef<HTMLDivElement>(null);
@@ -45,7 +45,7 @@ export default function FileTabs() {
     lineNumbersRef.current.scrollTop = scrollTop;
   };
 
-  const lines = activeFile ? Math.max(activeFile.content.split("\n").length, 1) : 1;
+  const lines = activeFile ? Math.max(activeFile.content.split("\n").length, 1) : 0;
 
   return (
       <div className="files-container container">

@@ -20,6 +20,8 @@
     align-items: flex-end;
     justify-content: flex-start; /* not space-between */
     width: 100%;
+    border-bottom: var(--border-width) solid;
+    border-image: var(--gradient-border-image);
 }
 
 .file-tabs-scrollable {
