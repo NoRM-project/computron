@@ -11,13 +11,13 @@ export default function FileTabs() {
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  const handleCompile = () => {
-    saveFile();
+  const handleCompile = async () => {
+    await saveFile();
     if(activeFile) compile(activeFile.content.replaceAll("'", ""), false);
   };
 
-  const handleRun = () => {
-    saveFile();
+  const handleRun = async () => {
+    await saveFile();
     if(activeFile) compile(activeFile.content.replaceAll("'", ""), true);
   };
 
