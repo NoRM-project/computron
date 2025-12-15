@@ -22,7 +22,7 @@ function calcRowsNumber(containerHeight: number) {
 }
 
 export default function Ram() {
-  const { state, run, loadRam, storeRam, setRegister } = useComputron();
+  const { state, run, stop, loadRam, storeRam, setRegister } = useComputron();
 
   const gridWidthRef = useRef<HTMLDivElement>(null);
   const [wordsPerRow, setWordsPerRow] = useState(8);
@@ -104,6 +104,11 @@ export default function Ram() {
     run();
   };
 
+  const handleStop = () => {
+    if (!state) return;
+    stop();
+  };
+
   const scrollUp = () => {
     const newFirstIndex = firstIndex - rowsNumber * wordsPerRow;
     setFirstIndex(Math.max(newFirstIndex, 0));
@@ -135,11 +140,35 @@ export default function Ram() {
                 Store
               </button>
             </div>
-            <button className="ram-button" onClick={() => { if (handleRun) handleRun();}}>
+            <button
+                className="ram-button"
+                onClick={() => {
+                  if (state?.running) {
+                    handleStop?.();
+                  } else {
+                    handleRun?.();
+                  }
+                }}
+            >
               <svg className="button-icon-svg" fill="none" viewBox="0 0 10 10">
-                <path d={svgIcons.ram_run} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" />
+                {state?.running ? (
+                    <path d={svgIcons.ram_stop}
+                          stroke="white"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.2" />
+                ) : (
+                    <path
+                        d={svgIcons.ram_run}
+                        stroke="white"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.2"
+                    />
+                )}
               </svg>
-              Run
+
+              {state?.running ? "Stop" : "Run"}
             </button>
           </div>
         </div>
