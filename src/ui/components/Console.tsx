@@ -3,7 +3,9 @@ import svgs from "./assets/svgs.ts";
 import { useEffect, useRef, useState } from "react";
 import {type ConsoleData, useComputron} from "../api/ComputronContext.tsx";
 
-const MOCK = true;
+type InputType = 'int' | 'float' | 'char' | null;
+
+const MOCK = false;
 const mock_value: Exclude<InputType, null> = 'int';
 
 export default function Console() {
@@ -16,11 +18,15 @@ export default function Console() {
     const [mockOutput, setMockOutput] = useState<ConsoleData[]>([]);
     const [mockInputRequested, setMockInputRequested] = useState<InputType>(null);
 
+    // ---- ЛОКАЛЬНЕ ЗБЕРІГАННЯ для real режиму
+    const [localConsoleOutput, setLocalConsoleOutput] = useState<ConsoleData[]>([]);
+
     // ---- ACTIVE SOURCE
-    const consoleOutput = MOCK ? mockOutput : computron.consoleOutput;
+    const consoleOutput = MOCK ? mockOutput : localConsoleOutput;
     const inputRequested : InputType = MOCK ? mockInputRequested : computron.inputRequested;
 
-    const [inputValue, setInputValue] = useState<string | "">("");
+    const [inputValue, setInputValue] = useState<string>("");
+    const [inputKey, setInputKey] = useState(0);
     const bottomRef = useRef<HTMLDivElement>(null);
 
 
@@ -42,14 +48,34 @@ export default function Console() {
         setMockInputRequested(mock_value);
     }, []);
 
+    // ---- СИНХРОНІЗАЦІЯ з context (real режим)
+    useEffect(() => {
+        if (!MOCK && computron.consoleOutput.length > 0) {
+            // Додаємо нові дані з context до локального стейту
+            setLocalConsoleOutput(prev => {
+                const newEntries = computron.consoleOutput.filter(entry => {
+                    // Перевіряємо чи вже є така entry
+                    return !prev.some((e, i) =>
+                        i < computron.consoleOutput.length &&
+                        e.type === entry.type &&
+                        e.value === entry.value
+                    );
+                });
+                return [...prev, ...newEntries];
+            });
+        }
+    }, [computron.consoleOutput, MOCK]);
+
     // ---- AUTO SCROLL
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [consoleOutput, inputRequested]);
 
+    // ---- RESET INPUT коли з'являється новий запит
     useEffect(() => {
         if (inputRequested !== null) {
             setInputValue("");
+            setInputKey(prev => prev + 1);
         }
     }, [inputRequested]);
 
@@ -59,19 +85,35 @@ export default function Console() {
 
         const regex = INPUT_REGEX[inputRequested];
         if (!regex.test(inputValue)) {
-            // optionally show error / shake input
             return;
         }
+
+        const submittedValue = inputValue;
 
         if (MOCK) {
             setMockOutput(prev => [
                 ...prev,
-                { type: 'in', value: inputValue },
-                { type: 'out', value: `Echo: ${inputValue}` }
+                { type: 'in', value: submittedValue }
             ]);
-            setMockInputRequested(mock_value);
+            setMockInputRequested(null);
+
+            setTimeout(() => {
+                setMockOutput(prev => [
+                    ...prev,
+                    { type: 'out', value: `Echo: ${submittedValue}` },
+                    { type: 'out', value: 'Enter number:' }
+                ]);
+                setMockInputRequested(mock_value);
+            }, 100);
         } else {
-            computron.consoleInput(inputValue);
+            // Додаємо input локально одразу
+            setLocalConsoleOutput(prev => [
+                ...prev,
+                { type: 'in', value: submittedValue }
+            ]);
+
+            // Відправляємо в context
+            computron.consoleInput(submittedValue);
         }
 
         setInputValue("");
@@ -80,8 +122,13 @@ export default function Console() {
 
     // ---- CLEAN
     const handleClean = () => {
-        if (MOCK) setMockOutput([]);
-        else computron.cleanConsole();
+        if (MOCK) {
+            setMockOutput([]);
+            setMockInputRequested(null);
+        } else {
+            setLocalConsoleOutput([]);
+            computron.cleanConsole();
+        }
     };
 
     return (
@@ -114,14 +161,14 @@ export default function Console() {
 
             <div className="console-output scrollable">
                 {consoleOutput.map((entry, i) => (
-                    <div key={i}>
+                    <div key={`entry-${i}`}>
                         {entry.type === 'out' ? '>> ' : '<< '}
                         {entry.value}
                     </div>
                 ))}
 
                 {inputRequested !== null && (
-                    <div className="console-input-line" key={inputRequested}>
+                    <div className="console-input-line" key={`input-${inputKey}`}>
                         {'<< '}
                         <input
                             type="text"
