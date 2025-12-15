@@ -149,7 +149,8 @@ export class CPU {
     }
 
     getMemoryCell(index: number) : number {
-        return this.state.memory[index];
+        const val = this.state.memory[index]
+        return val === undefined ? 0 : val;
     };
 
     getPC() : number {

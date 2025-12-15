@@ -68,7 +68,7 @@ instructionTable[CommandDecimal.INPC] = async (cpu) => {
 // 7: INP A := typed_integer_value(); PC := PC + 1;
 instructionTable[CommandDecimal.INP] = async (cpu) => {
     const reqHandler = RequestHandler.getInstance();
-    const inp: string = await reqHandler.requestInputFromFrontend('char');
+    const inp: string = await reqHandler.requestInputFromFrontend('int');
     const val: number = parseInt(inp);
     cpu.setA(val);
     cpu.addToPC(1);

@@ -11,25 +11,25 @@ export async function registerIPC(win: BrowserWindow) {
     // якийсьмодульбеку.setOnUpdateCallback(() => contents.send("computronUpdate", state)) - ліпше винести так аби вся ipc логіка лишилась тут і тільки тут
 
     // тут потрібне має підставить бекендер
-    ipcMain.on("compile", async (evt, data: {
+    ipcMain.on("compile", (evt, data: {
         plaintextCode: string;
         runAfterCompilation: boolean;  // Та, ви все правильно розумієте, ці типи прописуються окремо в трьох місцях, гарного дня, (#electron_typescript_<3_<3_<3)
     }) => {
         const parseSuccess: boolean = parseProgram(data.plaintextCode, cpu);
         if (parseSuccess && data.runAfterCompilation) {
             console.log("Run program")
-            await run(cpu);
+            run(cpu);
             console.log("Program has ended")
         }
     });
 
-    ipcMain.on("run", async (evt) => {
+    ipcMain.on("run", (evt) => {
         console.log("Run program");
-        await run(cpu);
+        run(cpu);
         console.log("Program has ended")
     });
 
-    ipcMain.on("stop", async (evt) => {
+    ipcMain.on("stop", (evt) => {
         console.log("Stop program");
         stop(cpu);
         console.log("Program stopped")
