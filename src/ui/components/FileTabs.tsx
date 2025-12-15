@@ -45,7 +45,7 @@ export default function FileTabs() {
     lineNumbersRef.current.scrollTop = scrollTop;
   };
 
-  const lines = activeFile ? Math.max(activeFile.content.split("\n").length, 1) : 1;
+  const lines = activeFile ? Math.max(activeFile.content.split("\n").length, 1) : 0;
 
   return (
       <div className="files-container container">
