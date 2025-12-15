@@ -52,7 +52,7 @@ instructionTable[CommandDecimal.RTS] = (cpu) => {
 
 // 5: EXIT
 instructionTable[CommandDecimal.EXIT] = (cpu) => {
-    cpu.setRunningSignal(false);
+    cpu.setRunning(false);
 };
 
 // 6: INPC A := typed_character_ascii_code(); PC := PC + 1;

@@ -17,7 +17,9 @@ export async function registerIPC(win: BrowserWindow) {
     }) => {
         const parseSuccess: boolean = parseProgram(data.plaintextCode, cpu);
         if (parseSuccess && data.runAfterCompilation) {
+            console.log("Run program")
             await run(cpu);
+            console.log("Program has ended")
         }
     });
 
@@ -29,7 +31,7 @@ export async function registerIPC(win: BrowserWindow) {
 
     ipcMain.on("stop", async (evt) => {
         console.log("Stop program");
-        await stop(cpu);
+        stop(cpu);
         console.log("Program stopped")
     });
 

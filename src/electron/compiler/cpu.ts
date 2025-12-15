@@ -12,9 +12,9 @@ export class CPU {
         x: 0,
         rh: 0,
         rl: 0,
-        memory: new Array<number>(65536).fill(0)
+        memory: new Array<number>(65536).fill(0),
+        running:  false
     };
-    private runningSignal: boolean = false;
 
     private constructor() {}
 
@@ -81,7 +81,7 @@ export class CPU {
 
     addToPC(val: number) {
         if (this.state.pc + val >= MAX_INT) {
-            this.runningSignal = false;
+            this.state.running = false;
             return;
         }
         this.state.pc += val;
@@ -89,7 +89,7 @@ export class CPU {
 
     setPC(val: number) {
         if (val >= MAX_INT || val < 0) {
-            this.runningSignal = false;
+            this.state.running = false;
             return;
         }
         if (val < 0){
@@ -120,8 +120,8 @@ export class CPU {
         this.state.x = val;
     };
 
-    setRunningSignal(val: boolean) {
-        this.runningSignal = val
+    setRunning(val: boolean) {
+        this.state.running = val
     }
 
     setMemory(val: Array<number>) {
@@ -156,8 +156,8 @@ export class CPU {
         return this.state.pc;
     };
 
-    getRunningSignal(): boolean {
-        return this.runningSignal;
+    getRunning(): boolean {
+        return this.state.running;
     };
 
     loadRamFromFile(path: string): FileResult<void> {
