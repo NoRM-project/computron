@@ -30,25 +30,14 @@ export default function Console() {
     useEffect(() => {
         if (computron.consoleOutput.length > 0) {
             setLocalConsoleOutput(prev => {
-                // Перевіряємо чи є нові записи
-                const lastLocal = prev[prev.length - 1];
-                const lastContext = computron.consoleOutput[computron.consoleOutput.length - 1];
-
-                // Якщо останній запис різний, додаємо нові
-                if (!lastLocal ||
-                    lastLocal.type !== lastContext.type ||
-                    lastLocal.value !== lastContext.value ||
-                    computron.consoleOutput.length > prev.length) {
-
-                    // Додаємо всі записи з context що відсутні локально
-                    const newEntries = computron.consoleOutput.slice(prev.length);
-                    return [...prev, ...newEntries];
-                }
-
-                return prev;
+                const newEntries = computron.consoleOutput.filter(entry =>
+                    !prev.some(e => e.type === entry.type && e.value === entry.value)
+                );
+                return [...prev, ...newEntries];
             });
         }
     }, [computron.consoleOutput]);
+
 
     // ---- AUTO SCROLL
     useEffect(() => {

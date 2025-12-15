@@ -7,26 +7,42 @@ import { run, stop } from "./compiler/executer.js";
 // тут безпосередньо прописуємо як бекенд має реагувати на кожний із івентів
 export async function registerIPC(win: BrowserWindow) {
     const cpu = CPU.getInstance()
+    let runningTask: Promise<void> | null = null;
 
     // якийсьмодульбеку.setOnUpdateCallback(() => contents.send("computronUpdate", state)) - ліпше винести так аби вся ipc логіка лишилась тут і тільки тут
 
     // тут потрібне має підставить бекендер
-    ipcMain.on("compile", (evt, data: {
+    ipcMain.on("compile", async (evt, data: {
         plaintextCode: string;
         runAfterCompilation: boolean;  // Та, ви все правильно розумієте, ці типи прописуються окремо в трьох місцях, гарного дня, (#electron_typescript_<3_<3_<3)
     }) => {
         const parseSuccess: boolean = parseProgram(data.plaintextCode, cpu);
         if (parseSuccess && data.runAfterCompilation) {
+            if (runningTask) return;
             console.log("Run program")
-            run(cpu);
-            console.log("Program has ended")
+            runningTask = run(cpu);
+
+            try {
+                await runningTask;
+            } finally {
+                runningTask = null;
+                console.log("Program has ended");
+            }
         }
     });
 
-    ipcMain.on("run", (evt) => {
+    ipcMain.on("run", async () => {
+        if (runningTask) return;
+
         console.log("Run program");
-        run(cpu);
-        console.log("Program has ended")
+        runningTask = run(cpu);
+
+        try {
+            await runningTask;
+        } finally {
+            runningTask = null;
+            console.log("Program has ended");
+        }
     });
 
     ipcMain.on("stop", (evt) => {

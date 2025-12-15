@@ -97,6 +97,7 @@ instructionTable[CommandDecimal.OUTC] = (cpu) => {
 instructionTable[CommandDecimal.OUT] = (cpu) => {
     const requestHandler = RequestHandler.getInstance();
     const a: number = toInt16(cpu.getA());
+    console.log(a);
     requestHandler.sendOutputToFrontend(a.toString());
     cpu.addToPC(1);
 };

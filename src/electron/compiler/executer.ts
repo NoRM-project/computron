@@ -7,6 +7,7 @@ const STEP_DELAY = 25;
 export async function run (cpu: CPU) {
     const requestHandler = RequestHandler.getInstance();
     cpu.setRunning(true);
+    requestHandler.sendComputronUpdate(cpu.getState());
 
     while (cpu.getRunning()) {
         let oldPc = cpu.getPC();
@@ -38,8 +39,8 @@ export async function run (cpu: CPU) {
 
 export function stop (cpu: CPU) {
     cpu.setRunning(false);
-    const requestHandler = RequestHandler.getInstance();
-    requestHandler.sendComputronUpdate(cpu.getState());
+    RequestHandler.getInstance()
+        .sendComputronUpdate(cpu.getState());
 }
 
 async function sleep(ms: number): Promise<void> {
