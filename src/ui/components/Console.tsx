@@ -1,4 +1,3 @@
-// Console.tsx
 import './console.css';
 import svgs from "./assets/svgs.ts";
 import { useEffect, useRef, useState } from "react";
