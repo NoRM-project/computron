@@ -1,20 +1,26 @@
-.console-container{
+.console-container {
     display: flex;
     flex-direction: column;
-    /*flex: 3;*/
-    flex: 0 0 auto;
-    /*width: 260px; !**!*/
-    min-width: 155px;
+
+    flex: 3;
+    max-width: 400px;        /* нормальний стан */
+    min-width: 200px;
+
     background: var(--console-gradient);
-    transition: width 0.25s ease;
-    /*overflow: hidden;*/
+
+    --transition-time: 0.4s;
+    transition:
+            max-width var(--transition-time) ease,
+            min-width var(--transition-time) ease,
+            padding var(--transition-time) ease;
 }
 
 .console-container.collapsed {
-    width: 32px;
+    max-width: 32px;
     min-width: 32px;
-    padding: 4px;
+    padding: 0 4px;
 }
+
 
 .console-container.collapsed .console-title,
 .console-container.collapsed .clean-up,
@@ -75,7 +81,7 @@
 
 
 .collapse-button svg {
-    transition: transform 0.2s ease;
+    transition: transform var(--transition-time) ease;
 }
 
 .console-container.collapsed .collapse-button {
