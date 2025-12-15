@@ -12,15 +12,17 @@ export default async function run (cpu: CPU) {
         console.log(oldPc);
         const commandCode = cpu.getMemoryCell(oldPc);
         const handler = instructionTable[commandCode];
+
         if (!handler) {
-            throw new Error(`Unknown opcode: ${commandCode} at PC=${oldPc}`);
+            requestHandler.sendExecutionError(`Unknown opcode: ${commandCode}`, oldPc);
         }
+        
         await handler(cpu); 
         if (!cpu.getRunningSignal()) break;
         requestHandler.sendComputronUpdate(cpu.getState());
 
         if (oldPc == cpu.getPC()){
-            throw new Error(`PC was not updated by opcode ${commandCode} at ${oldPc}`);
+            requestHandler.sendExecutionError(`PC was not updated by opcode ${commandCode}`, oldPc);
         }
 
        await sleep(STEP_DELAY)
