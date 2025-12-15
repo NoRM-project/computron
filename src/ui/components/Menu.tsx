@@ -13,7 +13,7 @@ export default function MenuBar() {
                     {
                         type: "item",
                         label: "New",
-                        onClick: () => newFile('undefined.txt'),
+                        onClick: () => newFile('Untitled.txt'),
                     },
                     {
                         type: "item",
