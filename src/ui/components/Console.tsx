@@ -3,7 +3,7 @@ import svgs from "./assets/svgs.ts";
 import { useEffect, useRef, useState } from "react";
 import {type ConsoleData, useComputron} from "../api/ComputronContext.tsx";
 
-const MOCK = true;
+const MOCK = false;
 const mock_value: Exclude<InputType, null> = 'int';
 
 export default function Console() {
@@ -20,7 +20,7 @@ export default function Console() {
     const consoleOutput = MOCK ? mockOutput : computron.consoleOutput;
     const inputRequested : InputType = MOCK ? mockInputRequested : computron.inputRequested;
 
-    const [inputValue, setInputValue] = useState<string | "">("");
+    const [inputValue, setInputValue] = useState<string>("");
     const bottomRef = useRef<HTMLDivElement>(null);
 
 

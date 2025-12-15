@@ -16,7 +16,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     // наставити ячейку пам'яті під програм каунтером на значення
     setMemoryCell: (value: number) => ipcRenderer.send("setMemoryCell", {value}),
     // передати ввід з консолі
-    consoleInput: (value: string) => ipcRenderer.send("consoleInput", {value}),
+    consoleInput: (value: string) => ipcRenderer.send("inputResponse", {value}),
     
     // інвоук означає що ми чекаємо на відповідь хендлера і результат який він нам верне. В даному випадку успіх/неуспіх і зміст файлу
     openFile: (path: string) => ipcRenderer.invoke("openFile", {path}), // тут параметри залежать від того чи хочете ви таби. Один із параметрів точно path вибраного файлу. Як ретурн успіх/неуспіх і контент файлу

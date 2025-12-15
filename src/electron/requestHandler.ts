@@ -14,40 +14,50 @@ export class RequestHandler {
     }
 
     requestInputFromFrontend(value: InputType): Promise<string> {
-        const TIMEOUT_MS = 10000;
+    const TIMEOUT_MS = 10000;
 
-        return new Promise((resolve, reject) => {
-            if (!this.win) {
-                return reject(new Error("No browser window present"));
+    return new Promise((resolve, reject) => {
+        if (!this.win) {
+            reject(new Error("No browser window present"));
+            return;
+        }
+
+        let finished = false;
+
+        let timer: NodeJS.Timeout;
+
+        const finish = (fn: () => void) => {
+            if (finished) return;
+            finished = true;
+
+            ipcMain.removeListener("inputResponse", onResponse);
+            clearTimeout(timer);
+
+            fn();
+        };
+
+        const onResponse = (
+            evt: Electron.IpcMainEvent,
+            data: { value: string }
+        ) => {
+            if (typeof data?.value !== "string") {
+                finish(() => reject(new Error("Invalid input value")));
+                return;
             }
 
-            let finished = false;
+            finish(() => resolve(data.value));
+        };
 
-            const finish = (fn: () => void) => {
-                if (finished) return;
-                finished = true;
-                fn();
-                clearTimeout(timer);
-                ipcMain.removeListener("inputResponse", onResponse);
-            }
+        ipcMain.once("inputResponse", onResponse);
 
-            const onResponse = (evt: Electron.IpcMainEvent, data: { value: string }) => {
-                if (typeof data?.value !== "number") {
-                    return finish(() => reject(new Error("Invalid input value")));
-                }
-                finish(() => resolve(data.value));
-            }
+        this.win.webContents.send("requestInput", value);
 
-            // надсилаємо запит фронту з усіма перевірками (!)
-            this.win.webContents.send("requestInput", value);
-            ipcMain.once("inputResponse", onResponse);
-            const timer = setTimeout(() => {
-                finish(() => reject(new Error("Frontend input timeout")));
-            }, TIMEOUT_MS);
-            const cleanup = () => clearTimeout(timer);
-            finish(() => cleanup());
-        });
-    }
+        timer = setTimeout(() => {
+            finish(() => reject(new Error("Frontend input timeout")));
+        }, TIMEOUT_MS);
+    });
+}
+
 
     sendOutputToFrontend(val: string) {
         if (!this.win) {
