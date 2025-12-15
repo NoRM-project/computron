@@ -5,7 +5,7 @@ import {type ConsoleData, useComputron} from "../api/ComputronContext.tsx";
 
 type InputType = 'int' | 'float' | 'char' | null;
 
-const MOCK = true;
+const MOCK = false;
 const mock_value: Exclude<InputType, null> = 'int';
 
 export default function Console() {

@@ -4,10 +4,11 @@ import { instructionTable } from "./instructionTable.js";
 
 const STEP_DELAY = 25;
 
-export default async function run (cpu: CPU) {
+export async function run (cpu: CPU) {
     const requestHandler = RequestHandler.getInstance();
-    cpu.setRunningSignal(true);
-    while (cpu.getRunningSignal()) {
+    cpu.setRunning(true);
+
+    while (cpu.getRunning()) {
         let oldPc = cpu.getPC();
         console.log(oldPc);
         const commandCode = cpu.getMemoryCell(oldPc);
@@ -18,8 +19,8 @@ export default async function run (cpu: CPU) {
         }
         
         await handler(cpu); 
-        if (!cpu.getRunningSignal()) break;
         requestHandler.sendComputronUpdate(cpu.getState());
+        if (!cpu.getRunning()) break;
 
         if (oldPc == cpu.getPC()){
             requestHandler.sendExecutionError(`PC was not updated by opcode ${commandCode}`, oldPc);
@@ -27,6 +28,10 @@ export default async function run (cpu: CPU) {
 
        await sleep(STEP_DELAY)
     }
+}
+
+export function stop (cpu: CPU) {
+    cpu.setRunning(false);
 }
 
 async function sleep(ms: number): Promise<void> {
