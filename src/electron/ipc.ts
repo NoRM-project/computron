@@ -7,6 +7,7 @@ import { run, stop } from "./compiler/executer.js";
 // тут безпосередньо прописуємо як бекенд має реагувати на кожний із івентів
 export async function registerIPC(win: BrowserWindow) {
     const cpu = CPU.getInstance()
+    let runningTask: Promise<void> | null = null;
 
     // якийсьмодульбеку.setOnUpdateCallback(() => contents.send("computronUpdate", state)) - ліпше винести так аби вся ipc логіка лишилась тут і тільки тут
 
@@ -17,19 +18,34 @@ export async function registerIPC(win: BrowserWindow) {
     }) => {
         const parseSuccess: boolean = parseProgram(data.plaintextCode, cpu);
         if (parseSuccess && data.runAfterCompilation) {
+            if (runningTask) return;
             console.log("Run program")
-            await run(cpu);
-            console.log("Program has ended")
+            runningTask = run(cpu);
+
+            try {
+                await runningTask;
+            } finally {
+                runningTask = null;
+                console.log("Program has ended");
+            }
         }
     });
 
-    ipcMain.on("run", async (evt) => {
+    ipcMain.on("run", async () => {
+        if (runningTask) return;
+
         console.log("Run program");
-        await run(cpu);
-        console.log("Program has ended")
+        runningTask = run(cpu);
+
+        try {
+            await runningTask;
+        } finally {
+            runningTask = null;
+            console.log("Program has ended");
+        }
     });
 
-    ipcMain.on("stop", async (evt) => {
+    ipcMain.on("stop", (evt) => {
         console.log("Stop program");
         stop(cpu);
         console.log("Program stopped")

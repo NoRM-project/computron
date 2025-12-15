@@ -53,6 +53,7 @@ export default function Console() {
         }
     }, [computron.consoleOutput]);
 
+
     // ---- AUTO SCROLL
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });

@@ -7,6 +7,7 @@ const STEP_DELAY = 25;
 export async function run (cpu: CPU) {
     const requestHandler = RequestHandler.getInstance();
     cpu.setRunning(true);
+    requestHandler.sendComputronUpdate(cpu.getState());
 
     while (cpu.getRunning()) {
         let oldPc = cpu.getPC();
@@ -15,7 +16,10 @@ export async function run (cpu: CPU) {
         const handler = instructionTable[commandCode];
 
         if (!handler) {
+            cpu.setRunning(false);
             requestHandler.sendExecutionError(`Unknown opcode: ${commandCode}`, oldPc);
+            requestHandler.sendComputronUpdate(cpu.getState());
+            return;
         }
         
         await handler(cpu); 
@@ -23,7 +27,10 @@ export async function run (cpu: CPU) {
         if (!cpu.getRunning()) break;
 
         if (oldPc == cpu.getPC()){
+            cpu.setRunning(false);
             requestHandler.sendExecutionError(`PC was not updated by opcode ${commandCode}`, oldPc);
+            requestHandler.sendComputronUpdate(cpu.getState());
+            return;
         }
 
        await sleep(STEP_DELAY)
@@ -32,6 +39,8 @@ export async function run (cpu: CPU) {
 
 export function stop (cpu: CPU) {
     cpu.setRunning(false);
+    RequestHandler.getInstance()
+        .sendComputronUpdate(cpu.getState());
 }
 
 async function sleep(ms: number): Promise<void> {
