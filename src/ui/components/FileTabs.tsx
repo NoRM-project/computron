@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import {useEffect, useRef} from "react";
 import svgPaths from "./assets/svgs.ts";
 import "./filetab.css";
 import {useComputron} from "../api/ComputronContext.tsx";
@@ -20,6 +20,24 @@ export default function FileTabs() {
     if(activeFile) compile(activeFile.content, true);
   };
 
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = tabsScrollRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (el.scrollWidth <= el.clientWidth) return;
+
+      if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
 
   const syncScroll = () => {
     if (!editorWrapperRef.current || !lineNumbersRef.current) return;
@@ -34,33 +52,35 @@ export default function FileTabs() {
         {/*<button onClick ={openFile} > open file </button>*/}
         {/* Tabs header */}
         <div className="file-tabs-container">
-          <div className="text-font-bold tabs-section ">
-            {files.map((file) => {
-              const isActive = activeFile?.name === file.name; // або порівнювати path
-              return (
-                  <div
-                      key={file.name}
-                      className={`tab ${isActive ? "active" : "inactive"}`}
-                      onClick={() => setActiveFile(file)}
-                  >
-                    <span className="tab-name">{file.name}</span>
-                        <button
-                            className="tab-close-btn"
-                            onClick={(e) => { e.stopPropagation(); closeFile(file); }}
-                        >
-                          <svg className="close-icon" fill="none" viewBox="0 0 9 9">
-                            <path
-                                d={svgPaths.file_tab_close}
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="1.3"
-                            />
-                          </svg>
-                        </button>
-                  </div>
-              );
-            })}
+          <div className="file-tabs-scrollable">
+            <div className="text-font-bold tabs-section" ref={tabsScrollRef}>
+              {files.map((file) => {
+                const isActive = activeFile?.name === file.name; // або порівнювати path
+                return (
+                    <div
+                        key={file.name}
+                        className={`tab ${isActive ? "active" : "inactive"}`}
+                        onClick={() => setActiveFile(file)}
+                    >
+                      <span className="tab-name">{file.name}</span>
+                          <button
+                              className="tab-close-btn"
+                              onClick={(e) => { e.stopPropagation(); closeFile(file); }}
+                          >
+                            <svg className="close-icon" fill="none" viewBox="0 0 9 9">
+                              <path
+                                  d={svgPaths.file_tab_close}
+                                  stroke="currentColor"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="1.3"
+                              />
+                            </svg>
+                          </button>
+                    </div>
+                );
+              })}
+            </div>
           </div>
 
           <div className="actions-section">
