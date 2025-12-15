@@ -15,7 +15,6 @@ export class CPU {
         memory: new Array<number>(65536).fill(0)
     };
     private runningSignal: boolean = false;
-    private newInput: string = "";
 
     private constructor() {}
 

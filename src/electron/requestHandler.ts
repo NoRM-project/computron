@@ -65,6 +65,24 @@ export class RequestHandler {
         this.win?.webContents.postMessage("computronUpdate", newState);
     }
 
+    sendCompilationError(error: string, line: number) {
+        if (!this.win) {
+            throw new Error("No browser window present");
+        }
+        const value: CompilationError = {error: error, line: line};
+        
+        this.win?.webContents.postMessage("compilationError", value);
+    }
+    
+    sendExecutionError(error: string, pc: number) {
+        if (!this.win) {
+            throw new Error("No browser window present");
+        }
+        const value: ExecutionError = {error: error, pc: pc};
+        
+        this.win?.webContents.postMessage("executionError", value);
+    }
+
     setWindow(win: BrowserWindow) {
         this.win = win;
     }

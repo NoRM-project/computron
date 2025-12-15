@@ -12,6 +12,16 @@ type ComputronState = {
 
 type InputType = 'int' | 'char' | 'float' | null
 
+type CompilationError = {
+    error: string
+    line: number
+}
+
+type ExecutionError = {
+    error: string
+    pc: number
+}
+
 type ProgramFile = {
     path: string | undefined;
     name: string;

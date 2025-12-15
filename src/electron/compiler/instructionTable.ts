@@ -446,7 +446,8 @@ instructionTable[CommandDecimal.DIV] = (cpu) => {
     const adr = cpu.getMemoryCell(pc + 1);
     const divisor = toInt16(cpu.getMemoryCell(adr));
     if (divisor === 0) {
-        throw new Error("Division by zero");
+        const requestHandler = RequestHandler.getInstance();
+        requestHandler.sendCompilationError("Division by zero", pc);
     }
     const res = Math.trunc(toInt16(cpu.getA()) / divisor);
     cpu.setA(res);
@@ -494,7 +495,10 @@ instructionTable[CommandDecimal.DIVR] = (cpu) => {
     const pc = cpu.getPC();
     const adr = cpu.getMemoryCell(pc + 1);
     const memReal = cpu.readRealFromMemory(adr);
-    if (memReal === 0) throw new Error("Real division by zero");
+    if (memReal === 0) {
+        const requestHandler = RequestHandler.getInstance();
+        requestHandler.sendCompilationError("Real division by zero", pc);
+    }
     const rVal = cpu.getRAsFloat();
     cpu.setRFromFloat(rVal / memReal);
     cpu.addToPC(2);

@@ -1,4 +1,5 @@
 import { CPU } from "../compiler/cpu.js";
+import { RequestHandler } from "../requestHandler.js";
 import { opcodeMap } from "./codeMap.js";
 
 export function parseProgram(input: string, cpu: CPU) {
@@ -9,6 +10,7 @@ export function parseProgram(input: string, cpu: CPU) {
 
     const memory: Array<number> = new Array<number>();
 
+    let i = 0;
     for (const token of tokens) {
         // if token is numeric → just push number
         if (!isNaN(Number(token))) {
@@ -19,10 +21,12 @@ export function parseProgram(input: string, cpu: CPU) {
         // otherwise → treat as instruction mnemonic
         const opcode = opcodeMap[token.toLowerCase()];
         if (opcode === undefined) {
-            throw new Error(`Unknown instruction: ${token}`);
+            const requestHandler = RequestHandler.getInstance();
+            requestHandler.sendCompilationError(`Unknown instruction: ${token}`, i);
         }
 
         memory.push(opcode);
+        i =+ 1;
     }
 
     return memory;

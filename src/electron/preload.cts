@@ -49,5 +49,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
         const handler = (_: any, value: InputType) => cb(value);
         ipcRenderer.on("requestInput", handler);
         return () => ipcRenderer.removeListener("requestInput", handler);
+    },
+    onCompilationError: (cb: (value: CompilationError) => void) => {
+        const handler = (_: any, value: CompilationError) => cb(value);
+        ipcRenderer.on("compilationError", handler);
+        return () => ipcRenderer.removeListener("compilationError", handler);
+    },
+    onExecutionError: (cb: (value: ExecutionError) => void) => {
+        const handler = (_: any, value: ExecutionError) => cb(value);
+        ipcRenderer.on("executionError", handler);
+        return () => ipcRenderer.removeListener("executionError", handler);
     }
 })
