@@ -34,11 +34,11 @@ type ComputronContextType = {
     compile: (code: string, run: boolean) => void;
     // наразі я погано розумію як нам працювати з файлами в плані відкрити, закрити
     // заготовка передбачає збереження файлів на фронті у вигляді масивів з данних і пасів, але це було б непогано додатково обговорити
-    saveFile: () => void;
-    saveFileAs: () => void;
+    saveFile: () => Promise<void>;
+    saveFileAs: () => Promise<void>;
     closeFile: (file:ProgramFile) => void;
-    openFile:() => void;
-    newFile: (name:string) => void;
+    openFile:() => Promise<void>;
+    newFile: (name:string) => Promise<void>;
     updateActiveFile: (value: string) => void;
     setActiveFile: (file: ProgramFile) => void;
 
