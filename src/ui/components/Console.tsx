@@ -5,7 +5,7 @@ import {type ConsoleData, useComputron} from "../api/ComputronContext.tsx";
 
 type InputType = 'int' | 'float' | 'char' | null;
 
-const MOCK = false;
+const MOCK = true;
 const mock_value: Exclude<InputType, null> = 'int';
 
 export default function Console() {
@@ -159,7 +159,7 @@ export default function Console() {
                 </button>
             </div>
 
-            <div className="console-output scrollable">
+            <div className="console-output scrollable text-font">
                 {consoleOutput.map((entry, i) => (
                     <div key={`entry-${i}`}>
                         {entry.type === 'out' ? '>> ' : '<< '}

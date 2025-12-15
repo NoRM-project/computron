@@ -7,6 +7,7 @@ type ComputronState = {
     x: number;
     rh: number;
     rl: number;
+    running: boolean;
     memory: Array<number>;
 }
 

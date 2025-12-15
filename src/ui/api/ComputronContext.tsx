@@ -17,6 +17,7 @@ type ComputronContextType = {
     state: ComputronState | null;
     files: ProgramFile[];
     activeFile: ProgramFile | null;
+    stopProgram: ()=>void;
 
     // Console -----------------------------------------
     // поле значень в консолі, при вводі тип інпут, з беку іде аутпут
@@ -247,10 +248,8 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         return () => { alive = false; };
     }, []);
 
-
-
-
     const cleanConsole = () => setConsoleOutput([]);
+    const handleStopProgram = () => window.electronAPI.stop();
 
     useEffect(() => {
         const unsubscribeUpdate = window.electronAPI.onComputronUpdate(handleComputronUpdate);
@@ -293,6 +292,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         },
         loadRam: handleLoad,
         storeRam: handleStore,
+        stopProgram: handleStopProgram,
         saveFile: handleSaveFile,
         saveFileAs: handleSaveAs,
         closeFile: handleCloseFile,
