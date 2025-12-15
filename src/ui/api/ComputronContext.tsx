@@ -119,7 +119,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
     const handleSaveAs = async () => {
         if (activeFile) {
-            const filePath = await window.electronAPI.askOpenFilePath({
+            const filePath = await window.electronAPI.askSavingPath({
                 filters: [
                     { name: "Text file", extensions: ["txt"] },
                     { name: "All Files", extensions: ["*"] },
@@ -131,12 +131,24 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
                 return;
             }
 
-            const result = await window.electronAPI.saveFile(filePath, activeFile.content);
+            const svingResult = await window.electronAPI.saveFile(filePath, activeFile.content);
 
-            if (!result.success) {
-                console.error(result.error);
+            if (!svingResult.success) {
+                console.error(svingResult.error);
                 return;
             }
+
+            handleCloseFile(activeFile);
+            const openingResult = await window.electronAPI.openFile(filePath);
+
+            if (!openingResult.success) {
+                console.error(openingResult.error);
+                return;
+            }
+
+            const file = openingResult.data;
+            setFiles(prev => [...prev, file]);
+            setActiveFile(file);
         }
     };
 
