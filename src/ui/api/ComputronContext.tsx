@@ -79,6 +79,12 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     const [inputRequested, setInputRequested] = useState<InputType>(null);
     const [compilationErrorLine, setCompilationErrorLine] = useState<number|null>(null);
 
+    useEffect(() => {
+        if (state?.running) {
+            setConsoleOutput(prev => [...prev, { type: 'out', value: "Program started" }])
+        }
+    }, [state?.running]);
+
     const handleOpenFile = async () => {
         const filePath = await window.electronAPI.askOpenFilePath({
             filters: [
