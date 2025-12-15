@@ -14,7 +14,6 @@ export class RequestHandler {
     }
 
     requestInputFromFrontend(value: InputType): Promise<string> {
-    const TIMEOUT_MS = 10000;
 
     return new Promise((resolve, reject) => {
         if (!this.win) {
@@ -31,7 +30,6 @@ export class RequestHandler {
             finished = true;
 
             ipcMain.removeListener("inputResponse", onResponse);
-            clearTimeout(timer);
 
             fn();
         };
@@ -51,10 +49,6 @@ export class RequestHandler {
         ipcMain.once("inputResponse", onResponse);
 
         this.win.webContents.send("requestInput", value);
-
-        timer = setTimeout(() => {
-            finish(() => reject(new Error("Frontend input timeout")));
-        }, TIMEOUT_MS);
     });
 }
 

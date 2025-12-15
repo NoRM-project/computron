@@ -15,8 +15,8 @@ export async function registerIPC(win: BrowserWindow) {
         plaintextCode: string;
         runAfterCompilation: boolean;  // Та, ви все правильно розумієте, ці типи прописуються окремо в трьох місцях, гарного дня, (#electron_typescript_<3_<3_<3)
     }) => {
-        parseProgram(data.plaintextCode, cpu);
-        if (data.runAfterCompilation) {
+        const parseSuccess: boolean = parseProgram(data.plaintextCode, cpu);
+        if (parseSuccess && data.runAfterCompilation) {
             await run(cpu);
         }
     });
@@ -41,12 +41,6 @@ export async function registerIPC(win: BrowserWindow) {
         cpu.setRegister(data.value, data.register);
     });
 
-    // ipcMain.handle("consoleInput", (evt, data : {
-    //     value: string;
-    // }) => {
-    //     console.log(data)
-    //     ipcRenderer.send("inputResponse", data)
-    // })
     ipcMain.on("setMemoryCell", (evt, data: {
         value: number;
     }) => {
