@@ -9,7 +9,7 @@ export type ConsoleData = {
 
 
 
-// До цього обєкту ви матимете доступ з будь якого компоненту, для використання достаньо використати хук на useComputron() 
+// До цього обєкту ви матимете доступ з будь якого компоненту, для використання достаньо використати хук на useComputron()
 // Приклад: const { state, compile, run, consoleOutput } = useComputron();
 // PS я не до кінця впевнена що треба а що ні, тому якщо що треба буде розширювати
 type ComputronContextType = {
@@ -64,9 +64,15 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         setState(value);
     }
 
+    const firstFile: ProgramFile = {
+        path: undefined,
+        name: "Untitled.txt",
+        content: ""
+    }
+
     const [state, setState] = useState<ComputronState | null>(null);
-    const [files, setFiles] = useState<ProgramFile[]>([]);
-    const [activeFile, setActiveFile] = useState<ProgramFile | null>(null);
+    const [files, setFiles] = useState<ProgramFile[]>([firstFile]);
+    const [activeFile, setActiveFile] = useState<ProgramFile | null>(firstFile);
     const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
     const [inputRequested, setInputRequested] = useState<InputType>(null);
 
@@ -120,6 +126,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     const handleSaveAs = async () => {
         if (activeFile) {
             const filePath = await window.electronAPI.askSavingPath({
+                defaultPath: "Untitled.txt",
                 filters: [
                     { name: "Text file", extensions: ["txt"] },
                     { name: "All Files", extensions: ["*"] },
@@ -127,7 +134,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
             });
 
             if (!filePath) {
-                console.error("Failed to open file");
+                console.error("Failed to save file");
                 return;
             }
 
@@ -138,7 +145,9 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
                 return;
             }
 
-            handleCloseFile(activeFile);
+            // Store the old file's path/name to identify it
+            const oldFilePath = activeFile.path;
+
             const openingResult = await window.electronAPI.openFile(filePath);
 
             if (!openingResult.success) {
@@ -146,9 +155,17 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
                 return;
             }
 
-            const file = openingResult.data;
-            setFiles(prev => [...prev, file]);
-            setActiveFile(file);
+            const newFile = openingResult.data;
+
+            // Remove the old file using path comparison and add the new one
+            setFiles(prevFiles => {
+                const filteredFiles = prevFiles.filter(f =>
+                    !(f.path === oldFilePath)
+                );
+                return [...filteredFiles, newFile];
+            });
+
+            setActiveFile(newFile);
         }
     };
 
@@ -229,7 +246,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
 
 
-    
+
     const cleanConsole = () => setConsoleOutput([]);
 
     useEffect(() => {
