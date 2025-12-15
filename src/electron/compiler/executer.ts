@@ -2,7 +2,7 @@ import { RequestHandler } from "../requestHandler.js";
 import { CPU } from "./cpu.js";
 import { instructionTable } from "./instructionTable.js";
 
-const STEP_DELAY = 50;
+const STEP_DELAY = 25;
 
 export default async function run (cpu: CPU) {
     const requestHandler = RequestHandler.getInstance();

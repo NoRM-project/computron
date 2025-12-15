@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, dialog } from "electron";
+import { BrowserWindow, ipcMain, dialog, ipcRenderer } from "electron";
 import { loadTextFile, saveTextFile } from "./services/fileService.js";
 import { CPU } from "./compiler/cpu.js";
 import { parseProgram } from "./parser/parser.js";
@@ -35,7 +35,12 @@ export async function registerIPC(win: BrowserWindow) {
         cpu.setRegister(data.value, data.register);
     });
 
-
+    // ipcMain.handle("consoleInput", (evt, data : {
+    //     value: string;
+    // }) => {
+    //     console.log(data)
+    //     ipcRenderer.send("inputResponse", data)
+    // })
     ipcMain.on("setMemoryCell", (evt, data: {
         value: number;
     }) => {
