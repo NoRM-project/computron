@@ -3,32 +3,22 @@ import svgs from "./assets/svgs.ts";
 import { useEffect, useRef, useState } from "react";
 import {type ConsoleData, useComputron} from "../api/ComputronContext.tsx";
 
-type InputType = 'int' | 'float' | 'char' | null;
-
-const MOCK = false;
-const mock_value: Exclude<InputType, null> = 'int';
-
 export default function Console() {
     const [collapsed, setCollapsed] = useState(false);
 
     // ---- REAL (from context)
     const computron = useComputron();
 
-    // ---- MOCK STATE
-    const [mockOutput, setMockOutput] = useState<ConsoleData[]>([]);
-    const [mockInputRequested, setMockInputRequested] = useState<InputType>(null);
-
     // ---- ЛОКАЛЬНЕ ЗБЕРІГАННЯ для real режиму
     const [localConsoleOutput, setLocalConsoleOutput] = useState<ConsoleData[]>([]);
 
     // ---- ACTIVE SOURCE
-    const consoleOutput = MOCK ? mockOutput : localConsoleOutput;
-    const inputRequested : InputType = MOCK ? mockInputRequested : computron.inputRequested;
+    const consoleOutput = localConsoleOutput;
+    const inputRequested: InputType = computron.inputRequested;
 
     const [inputValue, setInputValue] = useState<string>("");
     const [inputKey, setInputKey] = useState(0);
     const bottomRef = useRef<HTMLDivElement>(null);
-
 
     const INPUT_REGEX: Record<Exclude<InputType, null>, RegExp> = {
         int: /^-?\d+$/,
@@ -36,35 +26,29 @@ export default function Console() {
         char: /^.$/
     };
 
-
-    // ---- MOCK INIT
+    // ---- СИНХРОНІЗАЦІЯ з context
     useEffect(() => {
-        if (!MOCK) return;
-
-        setMockOutput([
-            { type: 'out', value: 'Program started' },
-            { type: 'out', value: 'Enter number:' }
-        ]);
-        setMockInputRequested(mock_value);
-    }, []);
-
-    // ---- СИНХРОНІЗАЦІЯ з context (real режим)
-    useEffect(() => {
-        if (!MOCK && computron.consoleOutput.length > 0) {
-            // Додаємо нові дані з context до локального стейту
+        if (computron.consoleOutput.length > 0) {
             setLocalConsoleOutput(prev => {
-                const newEntries = computron.consoleOutput.filter(entry => {
-                    // Перевіряємо чи вже є така entry
-                    return !prev.some((e, i) =>
-                        i < computron.consoleOutput.length &&
-                        e.type === entry.type &&
-                        e.value === entry.value
-                    );
-                });
-                return [...prev, ...newEntries];
+                // Перевіряємо чи є нові записи
+                const lastLocal = prev[prev.length - 1];
+                const lastContext = computron.consoleOutput[computron.consoleOutput.length - 1];
+
+                // Якщо останній запис різний, додаємо нові
+                if (!lastLocal ||
+                    lastLocal.type !== lastContext.type ||
+                    lastLocal.value !== lastContext.value ||
+                    computron.consoleOutput.length > prev.length) {
+
+                    // Додаємо всі записи з context що відсутні локально
+                    const newEntries = computron.consoleOutput.slice(prev.length);
+                    return [...prev, ...newEntries];
+                }
+
+                return prev;
             });
         }
-    }, [computron.consoleOutput, MOCK]);
+    }, [computron.consoleOutput]);
 
     // ---- AUTO SCROLL
     useEffect(() => {
@@ -90,44 +74,40 @@ export default function Console() {
 
         const submittedValue = inputValue;
 
-        if (MOCK) {
-            setMockOutput(prev => [
-                ...prev,
-                { type: 'in', value: submittedValue }
-            ]);
-            setMockInputRequested(null);
+        // Додаємо input локально одразу
+        setLocalConsoleOutput(prev => [
+            ...prev,
+            { type: 'in', value: submittedValue }
+        ]);
 
-            setTimeout(() => {
-                setMockOutput(prev => [
-                    ...prev,
-                    { type: 'out', value: `Echo: ${submittedValue}` },
-                    { type: 'out', value: 'Enter number:' }
-                ]);
-                setMockInputRequested(mock_value);
-            }, 100);
-        } else {
-            // Додаємо input локально одразу
-            setLocalConsoleOutput(prev => [
-                ...prev,
-                { type: 'in', value: submittedValue }
-            ]);
-
-            // Відправляємо в context
-            computron.consoleInput(submittedValue);
-        }
+        // Відправляємо в context
+        computron.consoleInput(submittedValue);
 
         setInputValue("");
     };
 
-
     // ---- CLEAN
     const handleClean = () => {
-        if (MOCK) {
-            setMockOutput([]);
-            setMockInputRequested(null);
-        } else {
-            setLocalConsoleOutput([]);
-            computron.cleanConsole();
+        setLocalConsoleOutput([]);
+        computron.cleanConsole();
+    };
+
+    // ---- ВИЗНАЧЕННЯ СТИЛЮ для різних типів
+    const getEntryPrefix = (type: ConsoleData['type']) => {
+        switch(type) {
+            case 'out': return '>> ';
+            case 'in': return '<< ';
+            case 'err': return '!! ';
+            default: return '';
+        }
+    };
+
+    const getEntryClass = (type: ConsoleData['type']) => {
+        switch(type) {
+            case 'err': return 'console-entry-error';
+            case 'in': return 'console-entry-input';
+            case 'out': return 'console-entry-output';
+            default: return '';
         }
     };
 
@@ -161,8 +141,8 @@ export default function Console() {
 
             <div className="console-output scrollable text-font">
                 {consoleOutput.map((entry, i) => (
-                    <div key={`entry-${i}`}>
-                        {entry.type === 'out' ? '>> ' : '<< '}
+                    <div key={`entry-${i}`} className={getEntryClass(entry.type)}>
+                        {getEntryPrefix(entry.type)}
                         {entry.value}
                     </div>
                 ))}
