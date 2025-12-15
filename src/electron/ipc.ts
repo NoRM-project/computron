@@ -2,7 +2,7 @@ import { BrowserWindow, ipcMain, dialog } from "electron";
 import { loadTextFile, saveTextFile } from "./services/fileService.js";
 import { CPU } from "./compiler/cpu.js";
 import { parseProgram } from "./parser/parser.js";
-import run from "./compiler/executer.js";
+import { run, stop } from "./compiler/executer.js";
 
 // тут безпосередньо прописуємо як бекенд має реагувати на кожний із івентів
 export async function registerIPC(win: BrowserWindow) {
@@ -25,6 +25,12 @@ export async function registerIPC(win: BrowserWindow) {
         console.log("Run program");
         await run(cpu);
         console.log("Program has ended")
+    });
+
+    ipcMain.on("stop", async (evt) => {
+        console.log("Stop program");
+        await stop(cpu);
+        console.log("Program stopped")
     });
 
     ipcMain.on("setRegister", (evt, data: {
