@@ -5,7 +5,7 @@ import {useComputron} from "../api/ComputronContext.tsx";
 
 export default function FileTabs() {
 
-  const { compile, saveFile, files, activeFile, updateActiveFile, closeFile, setActiveFile, openFile } = useComputron();
+  const { compile, saveFile, files, activeFile, updateActiveFile, closeFile, setActiveFile } = useComputron();
 
   const editorWrapperRef = useRef<HTMLDivElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
@@ -49,7 +49,7 @@ export default function FileTabs() {
 
   return (
       <div className="files-container container">
-        <button onClick ={openFile} > open file </button>
+        {/*<button onClick ={openFile} > open file </button>*/}
         {/* Tabs header */}
         <div className="file-tabs-container">
           <div className="file-tabs-scrollable">

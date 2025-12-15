@@ -1,57 +1,84 @@
 .menu-bar {
-    width: 100%;
-    background: var(--menu-gradient);
-    padding: 12px;
     display: flex;
     flex-direction: row;
+    width: 100%;
+    height: 40px;
+    background: var(--menu-gradient);
+    padding: 0 18px;
     gap: 12px;
 }
 
-.menu-bar button{
-    color: var(--white);
-    background: none;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-.menu-container {
+/* Контейнер Dropdown */
+.dropdown {
     position: relative;
     display: inline-block;
 }
 
-.menu-button {
-    background-color: #333;
+/* Кнопка меню */
+.dropdown-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
     color: var(--white);
+    font-size: 16px;
+    line-height: 100%;
+    font-weight: 400;
+    background: none;
     border: none;
-    padding: 6px 12px;
     cursor: pointer;
-    font-size: 14px;
-    border-radius: 4px;
 }
 
-.menu-button:hover {
-    background-color: #444;
+.dropdown-button:hover {
+    background-color: var(--transparent-background);
 }
 
-.popup-paper {
+/* Список пунктів меню */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 5px;
     min-width: 160px;
-    background-color: #222;
+    background-image: var(--popup-gradient);
     color: var(--white);
-    border-radius: 4px;
+    border-radius: var(--border-radius-mini);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    padding: 10px 0px;
 }
 
-.popup-menu-item {
-    padding: 6px 12px;
-    font-size: 14px;
+.dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: var(--border-radius-mini);
+    padding: var(--border-width);
+    background: radial-gradient(circle at 30% 30%, #6E6565 0%, rgba(136,97,97,0) 100%);
+    -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    pointer-events: none;
 }
 
-.popup-menu-item:hover {
+/* Пункт меню */
+.dropdown-item {
+    cursor: pointer;
+    white-space: nowrap;
+    padding: 0 10px;
+}
+
+.dropdown-item:hover {
     background-color: #555;
 }
 
-.popup-divider {
-    border-color: #444;
+/* Роздільник */
+.dropdown-divider {
+    height: var(--border-width);
+    background: linear-gradient(90deg, #737B7B, #647576, #828181);
+    margin: 5px 0;
 }
+
 

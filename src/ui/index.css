@@ -70,6 +70,14 @@
             #3B3C3E 100%
     );
 
+    --popup-gradient: radial-gradient(
+            circle at 0% 100%,
+            #242323 0%,
+            #363636 45%,
+            #323232 70%,
+            #262626 100%
+    );
+
     --gradient-border-image: linear-gradient(90deg, #737B7B, #647576, #828181) 1;
 }
 
