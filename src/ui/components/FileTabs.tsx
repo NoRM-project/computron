@@ -12,12 +12,12 @@ export default function FileTabs() {
 
   const handleCompile = () => {
     saveFile();
-    if(activeFile) compile(activeFile.content, false);
+    if(activeFile) compile(activeFile.content.replaceAll("'", ""), false);
   };
 
   const handleRun = () => {
     saveFile();
-    if(activeFile) compile(activeFile.content, true);
+    if(activeFile) compile(activeFile.content.replaceAll("'", ""), true);
   };
 
   const tabsScrollRef = useRef<HTMLDivElement>(null);

@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 // import path from "path";
 
 export type ConsoleData = {
-    type: 'in' | 'out';
+    type: 'in' | 'out' | 'err';
     value: string;
 };
 
@@ -27,6 +27,7 @@ type ComputronContextType = {
     consoleInput: (value: string) => void;
     // змінна яка визначає чи потрібен ввід в консоль
     inputRequested: InputType;
+    compilationErrorLine: number|null;
 
     // Files -------------------------------------------
     // скомпілювати (опціонально ранити) актуальний файл
@@ -75,6 +76,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     const [activeFile, setActiveFile] = useState<ProgramFile | null>(firstFile);
     const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
     const [inputRequested, setInputRequested] = useState<InputType>(null);
+    const [compilationErrorLine, setCompilationErrorLine] = useState<number|null>(null);
 
     const handleOpenFile = async () => {
         const filePath = await window.electronAPI.askOpenFilePath({
@@ -189,6 +191,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
     const handleUpdateActiveFile = (value: string) => {
         if (!activeFile) return;
+        setCompilationErrorLine(null)
 
         setFiles(prevFiles =>
             prevFiles.map(f =>
@@ -255,11 +258,20 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
             setConsoleOutput(prev => [...prev, { type: 'out', value }]);
         });
         const unsubscribeInput = window.electronAPI.onRequestInput((type:InputType) => setInputRequested(type));
+        const unsubscribeCompErr = window.electronAPI.onCompilationError((value) => {
+            setConsoleOutput(prev => [...prev, { type: 'err', value: `Compilation error on line: ${value.line}\n ${value.error}` }]);
+            setCompilationErrorLine(value.line);
+        });
+        const unsubscribeExecutionError = window.electronAPI.onExecutionError((value) => {
+            setConsoleOutput(prev => [...prev, { type: 'err', value: `Execution error on PC: ${value.pc}\n ${value.error}`  }]);
+        });
 
         return () => {
             unsubscribeUpdate();
             unsubscribeConsole();
             unsubscribeInput();
+            unsubscribeCompErr();
+            unsubscribeExecutionError();
         };
     }, []);
 
@@ -269,6 +281,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         activeFile,
         consoleOutput,
         inputRequested,
+        compilationErrorLine,
         compile: window.electronAPI.compile,
         cleanConsole,
         run: window.electronAPI.run,
