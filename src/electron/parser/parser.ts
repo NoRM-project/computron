@@ -4,7 +4,7 @@ import { opcodeMap } from "./codeMap.js";
 
 export function parseProgram(input: string, cpu: CPU) {
     const tokens = input
-        .split(",")
+        .split("\n")
         .map(t => t.trim().toLowerCase())
         .filter(t => t.length > 0);
 
