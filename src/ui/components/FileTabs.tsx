@@ -60,7 +60,7 @@ export default function FileTabs() {
           <div className="file-tabs-scrollable">
             <div className="text-font-bold tabs-section" ref={tabsScrollRef}>
               {files.map((file) => {
-                const isActive = activeFile?.name === file.name; // або порівнювати path
+                const isActive = activeFile?.path === undefined ? (activeFile?.name === file.name) : (activeFile?.path === file.path); // або порівнювати path
                 return (
                     <div
                         key={file.name}
