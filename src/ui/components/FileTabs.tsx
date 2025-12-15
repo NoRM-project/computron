@@ -5,10 +5,11 @@ import {useComputron} from "../api/ComputronContext.tsx";
 
 export default function FileTabs() {
 
-  const { compile, saveFile, files, activeFile, updateActiveFile, closeFile, setActiveFile } = useComputron();
+  const { compile, saveFile, files, activeFile, updateActiveFile, closeFile, setActiveFile, compilationErrorLine } = useComputron();
 
   const editorWrapperRef = useRef<HTMLDivElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   const handleCompile = () => {
     saveFile();
@@ -43,6 +44,10 @@ export default function FileTabs() {
     if (!editorWrapperRef.current || !lineNumbersRef.current) return;
     const scrollTop = editorWrapperRef.current.scrollTop;
     lineNumbersRef.current.scrollTop = scrollTop;
+
+    if (overlayRef.current) {
+      overlayRef.current.scrollTop = scrollTop;
+    }
   };
 
   const lines = activeFile ? Math.max(activeFile.content.split("\n").length, 1) : 0;
@@ -113,6 +118,18 @@ export default function FileTabs() {
             onScroll={syncScroll}
         >
           <div className="editor-content">
+
+            <div className="editor-overlay" ref={overlayRef}>
+              {Array.from({ length: lines }, (_, i) => (
+                  <div
+                      key={i}
+                      className={`overlay-line ${
+                          compilationErrorLine === i + 1 ? "error-line" : ""
+                      }`}
+                  />
+              ))}
+            </div>
+
             <div className="line-numbers" ref={lineNumbersRef}>
               {Array.from({ length: lines }, (_, i) => (
                   <div key={i} className="line-number">{i + 1}</div>

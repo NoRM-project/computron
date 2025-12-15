@@ -159,6 +159,25 @@
     min-height: 100%;
 }
 
+.editor-overlay {
+    position: absolute;
+    top: 0;
+    left: 40px;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    padding-top: 5px;
+    padding-right: 2px;
+}
+
+.overlay-line {
+    height: 16.8px;
+}
+
+.overlay-line.error-line {
+    background-color: rgba(255, 0, 0, 0.15);
+}
+
 .line-numbers {
     display: flex;
     flex-direction: column;
