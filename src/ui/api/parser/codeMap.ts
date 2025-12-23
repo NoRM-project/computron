@@ -1,4 +1,4 @@
-import { CommandDecimal } from "../compiler/commandEnum.js";
+import { CommandDecimal } from "../compiler/commandEnum.ts";
 
 export const opcodeMap: Record<string, number> = {
     nop: CommandDecimal.NOP,

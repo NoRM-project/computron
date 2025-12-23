@@ -1,6 +1,6 @@
-import { CPU } from "./cpu.js";
-import { RequestHandler } from "../requestHandler.js";
-import { CommandDecimal } from "./commandEnum.js";
+import { CPU } from "./cpu.ts";
+import { CommandDecimal } from "./commandEnum.ts";
+import { requestConsoleInput, sendCompilationError, sendConsoleOutput } from "../../context/contextBridge.ts";
 
 type InstructionHandler = (cpu: CPU) => void | Promise<void>;
 
@@ -57,18 +57,15 @@ instructionTable[CommandDecimal.EXIT] = (cpu) => {
 
 // 6: INPC A := typed_character_ascii_code(); PC := PC + 1;
 instructionTable[CommandDecimal.INPC] = async (cpu) => {
-    const reqHandler = RequestHandler.getInstance();
-    const inp: string = await reqHandler.requestInputFromFrontend('char');
+    const inp: string = await requestConsoleInput('char');
     const val: number = inp.charCodeAt(0);
     cpu.setA(val);
     cpu.addToPC(1);
-    
 };
 
 // 7: INP A := typed_integer_value(); PC := PC + 1;
 instructionTable[CommandDecimal.INP] = async (cpu) => {
-    const reqHandler = RequestHandler.getInstance();
-    const inp: string = await reqHandler.requestInputFromFrontend('int');
+    const inp: string = await requestConsoleInput('int');
     const val: number = parseInt(inp);
     cpu.setA(val);
     cpu.addToPC(1);
@@ -76,8 +73,7 @@ instructionTable[CommandDecimal.INP] = async (cpu) => {
 
 // 8: INPR R := typed_floating_point_value(); PC := PC + 1;
 instructionTable[CommandDecimal.INPR] = async (cpu) => {
-    const reqHandler = RequestHandler.getInstance();
-    const inp: string = await reqHandler.requestInputFromFrontend('float');
+    const inp: string = await requestConsoleInput('float');
     // Expect inp to be a floating-point number (JS number)
     const val = parseFloat(inp);
     cpu.setRFromFloat(val);
@@ -86,27 +82,25 @@ instructionTable[CommandDecimal.INPR] = async (cpu) => {
 
 // 9: OUTC display_character_of_code_in (A); PC := PC + 1;
 instructionTable[CommandDecimal.OUTC] = (cpu) => {
-    const requestHandler = RequestHandler.getInstance();
     const a: number = cpu.getA();
     const out: string = String.fromCharCode(a & 0xFF);
-    requestHandler.sendOutputToFrontend(out);
+    sendConsoleOutput(out);
     cpu.addToPC(1);
 };
 
 // 10: OUT display_integer_value_in (A); PC := PC + 1;
 instructionTable[CommandDecimal.OUT] = (cpu) => {
-    const requestHandler = RequestHandler.getInstance();
     const a: number = toInt16(cpu.getA());
     console.log(a);
-    requestHandler.sendOutputToFrontend(a.toString());
+    console.log('Sent console output')
+    sendConsoleOutput(a.toString());
     cpu.addToPC(1);
 };
 
 // 11: OUTR display_floating_point_value_in (R); PC := PC + 1;
 instructionTable[CommandDecimal.OUTR] = (cpu) => {
-    const requestHandler = RequestHandler.getInstance();
     const val = cpu.getRAsFloat();
-    requestHandler.sendOutputToFrontend(String(val));
+    sendConsoleOutput(String(val));
     cpu.addToPC(1);
 };
 
@@ -447,8 +441,7 @@ instructionTable[CommandDecimal.DIV] = (cpu) => {
     const adr = cpu.getMemoryCell(pc + 1);
     const divisor = toInt16(cpu.getMemoryCell(adr));
     if (divisor === 0) {
-        const requestHandler = RequestHandler.getInstance();
-        requestHandler.sendCompilationError("Division by zero", pc);
+        sendCompilationError("Division by zero", pc);
     }
     const res = Math.trunc(toInt16(cpu.getA()) / divisor);
     cpu.setA(res);
@@ -497,8 +490,7 @@ instructionTable[CommandDecimal.DIVR] = (cpu) => {
     const adr = cpu.getMemoryCell(pc + 1);
     const memReal = cpu.readRealFromMemory(adr);
     if (memReal === 0) {
-        const requestHandler = RequestHandler.getInstance();
-        requestHandler.sendCompilationError("Real division by zero", pc);
+        sendCompilationError("Real division by zero", pc);
     }
     const rVal = cpu.getRAsFloat();
     cpu.setRFromFloat(rVal / memReal);

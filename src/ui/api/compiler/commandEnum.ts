@@ -1,3 +1,4 @@
+// @ts-ignore
 export enum CommandDecimal {
     NOP = 0,
     BZE = 1,

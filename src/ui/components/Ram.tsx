@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
-import { useComputron } from "../api/ComputronContext";
+import { useComputron } from "../context/ComputronContext.tsx";
 import svgIcons from "./assets/svgs.ts";
 import "./ram.css";
 
@@ -22,7 +22,7 @@ function calcRowsNumber(containerHeight: number) {
 }
 
 export default function Ram() {
-  const { state, run, stopProgram, loadRam, storeRam, setRegister } = useComputron();
+  const { state, runProgram, stopProgram, loadRam, storeRam, setRegister } = useComputron();
 
   const gridWidthRef = useRef<HTMLDivElement>(null);
   const [wordsPerRow, setWordsPerRow] = useState(8);
@@ -84,8 +84,8 @@ export default function Ram() {
 
     for (let start = firstIndex; start < MEMORY_SIZE; start += wordsPerRow) {
       if (currentRow >= rowsNumber) break;
-      console.log("currentRow", currentRow);
-      console.log("rowsNumber", rowsNumber);
+      // console.log("currentRow", currentRow);
+      // console.log("rowsNumber", rowsNumber);
 
       const words = memory.slice(start, start + wordsPerRow);
 
@@ -101,7 +101,7 @@ export default function Ram() {
 
   const handleRun = () => {
     if (!state) return;
-    run();
+    runProgram();
   };
 
   const handleStop = () => {

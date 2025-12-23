@@ -1,7 +1,7 @@
 import './console.css';
 import svgs from "./assets/svgs.ts";
 import { useEffect, useRef, useState } from "react";
-import { type ConsoleData, useComputron } from "../api/ComputronContext.tsx";
+import { type ConsoleData, useComputron } from "../context/ComputronContext.tsx";
 
 export default function Console() {
     const [collapsed, setCollapsed] = useState(false);

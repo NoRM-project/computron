@@ -1,5 +1,4 @@
-import { RequestHandler } from "../requestHandler.js";
-import {loadBinaryFile, saveBinaryFile} from "../services/fileService.js";
+import {sendComputronUpdate} from "../../context/contextBridge.ts";
 
 const MAX_INT = 65536;
 
@@ -29,8 +28,14 @@ export class CPU {
         return this.state;
     }
 
+    getMemoryReference(): Array<number> {
+        return this.state.memory;
+    }
+
     readRealFromMemory(addr: number): number {
-        const uint32 = (this.state.rh << 16) | this.state.rl;
+        const rl = this.state.memory[addr] ?? 0;
+        const rh = this.state.memory[addr + 1] ?? 0;
+        const uint32 = (rh << 16) | rl;
         const buf = new ArrayBuffer(4);
         const dv = new DataView(buf);
         dv.setUint32(0, uint32, true); // little-endian
@@ -69,14 +74,12 @@ export class CPU {
 
     setRegister(val: number, reg: Register) {
         this.state[reg] = val;
-        const reqHandler = RequestHandler.getInstance();
-        reqHandler.sendComputronUpdate(this.state);
+        sendComputronUpdate(this.state);
     };
 
     setMemoryCell(val: number, index: number) {
         this.state.memory[index] = val;
-        const reqHandler = RequestHandler.getInstance();
-        reqHandler.sendComputronUpdate(this.state);
+        sendComputronUpdate(this.state);
     };
 
     addToPC(val: number) {
@@ -161,8 +164,8 @@ export class CPU {
         return this.state.running;
     };
 
-    loadRamFromFile(path: string): FileResult<void> {
-        const result = loadBinaryFile(path);
+    async loadRamFromFile(path: string): Promise<FileResult<void>> {
+        const result = await window.electronAPI.loadBinaryFile(path);
         if (!result.success) return result;
 
         const buffer = result.data;
@@ -171,27 +174,20 @@ export class CPU {
             return { success: false, error: "Invalid RAM file size" };
         }
 
-        const view = new DataView(
-            buffer.buffer,
-            buffer.byteOffset,
-            buffer.byteLength
-        );
+        const view = new DataView(buffer);
 
-        const mem: number[] = [];
+        const mem = this.state.memory;
 
-        for (let i = 0; i < buffer.byteLength; i += 2) {
-            mem.push(view.getUint16(i, true));
+        for (let i = 0; i < mem.length && i * 2 < buffer.byteLength; i++) {
+            mem[i] = view.getUint16(i * 2, true);
         }
 
-        this.state.memory = mem;
-
-        const reqHandler = RequestHandler.getInstance();
-        reqHandler.sendComputronUpdate(this.state);
+        sendComputronUpdate(this.state);
 
         return { success: true, data: undefined };
     }
 
-    saveRamToFile(path: string): FileResult<void> {
+    async saveRamToFile(path: string): Promise<FileResult<void>> {
         const mem = this.state.memory;
 
         const buffer = new ArrayBuffer(mem.length * 2);
@@ -201,6 +197,6 @@ export class CPU {
             view.setUint16(i * 2, mem[i] & 0xffff, true);
         }
 
-        return saveBinaryFile(path, Buffer.from(buffer));
+        return window.electronAPI.saveBinaryFile(path, buffer);
     }
 }

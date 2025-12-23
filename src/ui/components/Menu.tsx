@@ -1,5 +1,5 @@
 import DropdownMenu from "./primitives/DropdownMenu.tsx";
-import {useComputron} from "../api/ComputronContext.tsx";
+import {useComputron} from "../context/ComputronContext.tsx";
 
 
 export default function MenuBar() {

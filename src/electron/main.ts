@@ -3,8 +3,6 @@ import path from 'path'
 import { isDev } from './util.js';
 import { registerIPC } from './ipc.js';
 import {getIconPath, getPreloadPath} from './pathResolver.js';
-import { RequestHandler } from './requestHandler.js';
-import {CPU} from "./compiler/cpu.js";
 
 let win: BrowserWindow;
 
@@ -24,7 +22,6 @@ const createWindow = async () => {
         minWidth: 662,
         minHeight: 235,
     });
-    RequestHandler.getInstance().setWindow(win);
 
     if (isDev()) {
         await win.loadURL("http://localhost:5123/");

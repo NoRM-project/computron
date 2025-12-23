@@ -1,7 +1,7 @@
 import {useEffect, useRef} from "react";
 import svgPaths from "./assets/svgs.ts";
 import "./filetab.css";
-import {useComputron} from "../api/ComputronContext.tsx";
+import {useComputron} from "../context/ComputronContext.tsx";
 
 export default function FileTabs() {
 

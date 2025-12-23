@@ -25,18 +25,25 @@ export function saveTextFile(path: string, content: string): FileResult<void> {
     }
 }
 
-export function loadBinaryFile(path: string): FileResult<Buffer> {
+export function loadBinaryFile(path: string): FileResult<ArrayBuffer> {
     try {
         const data = fs.readFileSync(path);
-        return { success: true, data };
+
+        const arrayBuffer = data.buffer.slice(
+            data.byteOffset,
+            data.byteOffset + data.byteLength
+        );
+
+        return { success: true, data: arrayBuffer };
     } catch (err) {
         return { success: false, error: String(err) };
     }
 }
 
-export function saveBinaryFile(path: string, buffer: Buffer): FileResult<void> {
+
+export function saveBinaryFile(path: string, buffer: ArrayBuffer): FileResult<void> {
     try {
-        fs.writeFileSync(path, buffer);
+        fs.writeFileSync(path, Buffer.from(buffer));
         return { success: true, data: undefined };
     } catch (err) {
         return { success: false, error: String(err) };

@@ -35,23 +35,11 @@ type FileResult<T> =
 
 interface Window {
     electronAPI: {
-        compile(plaintextCode: string, runAfterCompilation: boolean): void;
-        run(): void;
-        stop(): void;
-        setRegister(register: Register, value: number): void;
-        setMemoryCell(value: number): void;
-        consoleInput(value: string): void;
         openFile(path: string): Promise<FileResult<ProgramFile>>;
         saveFile(path: string, newContent: string): Promise<FileResult<void>>;
-        loadRamFromFile(path: string): Promise<FileResult<void>>;
-        saveRamToFile(path: string): Promise<FileResult<void>>;
-        getInitialComputronState(): Promise<ComputronState>;
-        onComputronUpdate(cb: (state: ComputronState) => void): () => void;
-        onConsoleOutput(cb: (value: string) => void): () => void;
-        onRequestInput(cb: (type:InputType) => void): () => void;
+        loadBinaryFile(path: string): Promise<FileResult<ArrayBuffer>>;
+        saveBinaryFile(path: string, content: ArrayBuffer): Promise<FileResult<void>>;
         askOpenFilePath(options?: Electron.OpenDialogOptions): Promise<string | null>,
         askSavingPath(options?: Electron.SaveDialogOptions): Promise<string | null>,
-        onCompilationError(cb: (value: CompilationError) => void):() => void,
-        onExecutionError(cb: (value: ExecutionError) => void):() => void,
     }
 }

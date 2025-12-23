@@ -1,20 +1,24 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-// import {Connect} from "vite";
-// import path from "path";
+import { CPU } from "../api/compiler/cpu.ts";
+import { run, stop } from "../api/compiler/executer.ts";
+import { parseProgram } from "../api/parser/parser.ts";
+import {registerConsoleHandlers} from "./contextBridge.ts";
+
+const cpu = CPU.getInstance();
+let runningTask: Promise<void> | null = null;
+let pendingInputResolver: ((value: string) => void) | null = null;
 
 export type ConsoleData = {
     type: 'in' | 'out' | 'err';
     value: string;
 };
 
-
-
 // До цього обєкту ви матимете доступ з будь якого компоненту, для використання достаньо використати хук на useComputron()
 // Приклад: const { state, compile, run, consoleOutput } = useComputron();
 // PS я не до кінця впевнена що треба а що ні, тому якщо що треба буде розширювати
 type ComputronContextType = {
     // поточний стан компутрона
-    state: ComputronState | null;
+    state: ComputronState;
     files: ProgramFile[];
     activeFile: ProgramFile | null;
     stopProgram: ()=>void;
@@ -43,10 +47,7 @@ type ComputronContextType = {
     updateActiveFile: (value: string) => void;
     setActiveFile: (file: ProgramFile) => void;
 
-    // Memory and Registers
-    // запустити програму
-    run: () => void;
-    // наставити регістр такіто на значення такето
+    runProgram: () => void;
     setRegister: (reg: Register, value: number) => void;
     // наставити ячейку пам'яті під програм каунтером на значення
     setMemoryCell: (value: number) => void;
@@ -72,18 +73,12 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         content: ""
     }
 
-    const [state, setState] = useState<ComputronState | null>(null);
+    const [state, setState] = useState<ComputronState>(cpu.getState());
     const [files, setFiles] = useState<ProgramFile[]>([firstFile]);
     const [activeFile, setActiveFile] = useState<ProgramFile | null>(firstFile);
     const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
     const [inputRequested, setInputRequested] = useState<InputType>(null);
     const [compilationErrorLine, setCompilationErrorLine] = useState<number|null>(null);
-
-    useEffect(() => {
-        if (state?.running) {
-            setConsoleOutput(prev => [...prev, { type: 'out', value: "Program started" }])
-        }
-    }, [state?.running]);
 
     const handleOpenFile = async () => {
         const filePath = await window.electronAPI.askOpenFilePath({
@@ -217,7 +212,11 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
             ]
         }).then(path => {
             if (path) {
-                window.electronAPI.loadRamFromFile(path);
+                cpu.loadRamFromFile(path).then((result) => {
+                    if (!result.success) {
+                        console.error(`Failed to load Ram ${result.error}`);
+                    }
+                });
             } else {
                 console.error("Failed to load Ram");
             }
@@ -233,7 +232,11 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
             ]
         }).then(path => {
             if (path) {
-                window.electronAPI.saveRamToFile(path);
+                cpu.saveRamToFile(path).then((result) => {
+                    if (!result.success) {
+                        console.error(`Failed to save Ram ${result.error}`);
+                    }
+                });
             } else {
                 console.error("Failed to save Ram");
             }
@@ -241,43 +244,70 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     };
 
 
-
-    useEffect(() => {
-        let alive = true;
-
-        (async () => {
-            const initial = await window.electronAPI.getInitialComputronState();
-            if (alive) setState(initial);
-            console.log(initial);
-        })();
-
-        return () => { alive = false; };
-    }, []);
-
     const cleanConsole = () => setConsoleOutput([]);
-    const handleStopProgram = () => window.electronAPI.stop();
+
+    const handleConsoleInput = (value: string) => {
+        setInputRequested(null);
+        if (pendingInputResolver) {
+            pendingInputResolver(value);
+            pendingInputResolver = null;
+        }
+    }
+
+    const handleStopProgram = () => {
+        stop(cpu);
+    };
+
+    const handleCompile = async (plaintextCode: string, runAfterCompilation: boolean)=> {
+        const parseSuccess = parseProgram(plaintextCode, cpu);
+        // refresh();
+        if (parseSuccess && runAfterCompilation) {
+            await handleRun();
+        }
+    };
+
+    const handleRun = async ()=> {
+        if (runningTask) return;
+        runningTask = run(cpu);
+        // refresh();
+        try {
+            await runningTask;
+        } finally {
+            runningTask = null;
+            // refresh();
+        }
+    };
+
+    const handleSetRegister = (register: Register, value: number) => {
+        cpu.setRegister(value, register);
+    };
+
+    const handleSetMemoryCell = (value: number) => {
+        cpu.setMemoryCell(value, cpu.getPC());
+    };
 
     useEffect(() => {
-        const unsubscribeUpdate = window.electronAPI.onComputronUpdate(handleComputronUpdate);
-        const unsubscribeConsole = window.electronAPI.onConsoleOutput((value) => {
-            setConsoleOutput(prev => [...prev, { type: 'out', value }]);
-        });
-        const unsubscribeInput = window.electronAPI.onRequestInput((type:InputType) => setInputRequested(type));
-        const unsubscribeCompErr = window.electronAPI.onCompilationError((value) => {
-            setConsoleOutput(prev => [...prev, { type: 'err', value: `Compilation error on line: ${value.line}\n ${value.error}` }]);
-            setCompilationErrorLine(value.line);
-        });
-        const unsubscribeExecutionError = window.electronAPI.onExecutionError((value) => {
-            setConsoleOutput(prev => [...prev, { type: 'err', value: `Execution error on PC: ${value.pc}\n ${value.error}`  }]);
-        });
+        registerConsoleHandlers({
+            onConsoleOutput: ((value) => {
+                console.log('Output')
+                setConsoleOutput(prev => [...prev, { type: 'out', value }]);
+            }),
+            onExecutionError: (value) => {
+                setConsoleOutput(prev => [...prev, { type: 'err', value: `Execution error on PC: ${value.pc}\n ${value.error}`  }]);
+            },
+            onCompilationError: (value) => {
+                setConsoleOutput(prev => [...prev, { type: 'err', value: `Compilation error on line: ${value.line}\n ${value.error}` }]);
+                setCompilationErrorLine(value.line);
+            },
+            onRequestInput: (type: InputType) => {
+                setInputRequested(type);
 
-        return () => {
-            unsubscribeUpdate();
-            unsubscribeConsole();
-            unsubscribeInput();
-            unsubscribeCompErr();
-            unsubscribeExecutionError();
-        };
+                return new Promise<string>((resolve) => {
+                    pendingInputResolver = resolve;
+                });
+            },
+            onComputronUpdate: handleComputronUpdate,
+        });
     }, []);
 
     const value: ComputronContextType = {
@@ -287,15 +317,12 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         consoleOutput,
         inputRequested,
         compilationErrorLine,
-        compile: window.electronAPI.compile,
+        compile: handleCompile,
         cleanConsole,
-        run: window.electronAPI.run,
-        setRegister: window.electronAPI.setRegister,
-        setMemoryCell: window.electronAPI.setMemoryCell,
-        consoleInput: (value:string)=>{
-            setInputRequested(null);
-            window.electronAPI.consoleInput(value);
-        },
+        runProgram: handleRun,
+        setRegister: handleSetRegister,
+        setMemoryCell: handleSetMemoryCell,
+        consoleInput: handleConsoleInput,
         loadRam: handleLoad,
         storeRam: handleStore,
         stopProgram: handleStopProgram,

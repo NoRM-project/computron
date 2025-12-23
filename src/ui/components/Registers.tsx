@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import './registers.css'
-import { useComputron } from '../api/ComputronContext';
+import { useComputron } from '../context/ComputronContext.tsx';
 import WordSelector from './primitives/WordSelector';
 
 const Registers: React.FC = () => {
