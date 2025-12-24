@@ -45,7 +45,7 @@ type ComputronContextType = {
     openFile:() => Promise<void>;
     newFile: (name:string) => Promise<void>;
     updateActiveFile: (value: string) => void;
-    setActiveFile: (file: ProgramFile) => void;
+    setActiveFileId: (id: string) => void;
 
     runProgram: () => void;
     setRegister: (reg: Register, value: number) => void;
@@ -68,6 +68,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     }
 
     const firstFile: ProgramFile = {
+        id: crypto.randomUUID(),
         path: undefined,
         name: "Untitled.txt",
         content: ""
@@ -75,7 +76,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
     const [state, setState] = useState<ComputronState>(cpu.getState());
     const [files, setFiles] = useState<ProgramFile[]>([firstFile]);
-    const [activeFile, setActiveFile] = useState<ProgramFile | null>(firstFile);
+    const [activeFileId, setActiveFileId] = useState<string>(firstFile.id);
     const [consoleOutput, setConsoleOutput] = useState<ConsoleData[]>([]);
     const [inputRequested, setInputRequested] = useState<InputType>(null);
     const [compilationErrorLine, setCompilationErrorLine] = useState<number|null>(null);
@@ -95,7 +96,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
         const existingFile = files.find(f => f.path === filePath);
         if (existingFile) {
-            setActiveFile(existingFile);
+            setActiveFileId(existingFile.id);
             return;
         }
 
@@ -108,10 +109,11 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
         const file = result.data;
         setFiles(prev => [...prev, file]);
-        setActiveFile(file);
+        setActiveFileId(file.id);
     };
 
     const handleSaveFile = async () => {
+        const activeFile = files.find(f => f.id === activeFileId) ?? null;
         if (activeFile) {
             if(activeFile.path === undefined) {
                 await handleSaveAs();
@@ -128,6 +130,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
 
 
     const handleSaveAs = async () => {
+        const activeFile = files.find(f => f.id === activeFileId) ?? null;
         if (activeFile) {
             const filePath = await window.electronAPI.askSavingPath({
                 defaultPath: "Untitled.txt",
@@ -169,38 +172,36 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
                 return [...filteredFiles, newFile];
             });
 
-            setActiveFile(newFile);
+            setActiveFileId(newFile.id);
         }
     };
 
     const handleNewFile = async (name:string) => {
-        const newFile = {path:undefined, name:name, content:""}
+        const newFile = {path:undefined, name:name, content:"", id: crypto.randomUUID()}
         setFiles(prev => [...prev, newFile]);
-        setActiveFile(newFile);
+        setActiveFileId(newFile.id);
     }
 
     const handleCloseFile = (file: ProgramFile) => {
         setFiles(prevFiles => {
             const newFiles = prevFiles.filter(f => f !== file);
             if (newFiles.length === 0) {
-                setActiveFile(null);
-            } else if (activeFile === file) {
-                setActiveFile(newFiles[0]);
+                setActiveFileId("");
+            } else if (activeFileId === file.id) {
+                setActiveFileId(newFiles[0].id);
             }
             return newFiles;
         });
     };
 
     const handleUpdateActiveFile = (value: string) => {
-        if (!activeFile) return;
         setCompilationErrorLine(null)
 
         setFiles(prevFiles =>
             prevFiles.map(f =>
-                f === activeFile ? { ...f, content: value } : f
+                f.id === activeFileId ? { ...f, content: value } : f
             )
         );
-        setActiveFile(prev => prev ? { ...prev, content: value } : null);
     };
 
 
@@ -313,7 +314,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
     const value: ComputronContextType = {
         state,
         files,
-        activeFile,
+        activeFile: files.find(f => f.id === activeFileId) ?? null,
         consoleOutput,
         inputRequested,
         compilationErrorLine,
@@ -332,7 +333,7 @@ export const ComputronProvider: React.FC<{children: React.ReactNode}> = ({ child
         openFile:handleOpenFile,
         newFile: handleNewFile,
         updateActiveFile: handleUpdateActiveFile,
-        setActiveFile: setActiveFile,
+        setActiveFileId: setActiveFileId,
     };
 
     return <ComputronContext.Provider value={value}>{children}</ComputronContext.Provider>;

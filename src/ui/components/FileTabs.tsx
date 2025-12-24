@@ -5,7 +5,7 @@ import {useComputron} from "../context/ComputronContext.tsx";
 
 export default function FileTabs() {
 
-  const { compile, saveFile, files, activeFile, updateActiveFile, closeFile, setActiveFile, compilationErrorLine } = useComputron();
+  const { compile, saveFile, files, activeFile, updateActiveFile, closeFile, setActiveFileId, compilationErrorLine } = useComputron();
 
   const editorWrapperRef = useRef<HTMLDivElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
@@ -60,12 +60,12 @@ export default function FileTabs() {
           <div className="file-tabs-scrollable">
             <div className="text-font-bold tabs-section" ref={tabsScrollRef}>
               {files.map((file) => {
-                const isActive = activeFile?.path === undefined ? (activeFile?.name === file.name) : (activeFile?.path === file.path); // або порівнювати path
+                const isActive = activeFile?.id === file.id;
                 return (
                     <div
                         key={file.name}
                         className={`tab ${isActive ? "active" : "inactive"}`}
-                        onClick={() => setActiveFile(file)}
+                        onClick={() => setActiveFileId(file.id)}
                     >
                       <span className="tab-name">{file.name}</span>
                           <button

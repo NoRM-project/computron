@@ -6,6 +6,7 @@ export function loadTextFile(filePath: string): FileResult<ProgramFile> {
     try {
         const data = fs.readFileSync(filePath, "utf8");
         const file: ProgramFile = {
+            id: crypto.randomUUID(),
             path: filePath,
             content: data,
             name: path.basename(filePath)

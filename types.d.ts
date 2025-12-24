@@ -24,6 +24,7 @@ type ExecutionError = {
 }
 
 type ProgramFile = {
+    id: string
     path: string | undefined;
     name: string;
     content: string;
