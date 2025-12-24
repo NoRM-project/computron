@@ -34,6 +34,14 @@
     flex-direction: row;
 }
 
+.console-entry,
+.console-input-line {
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    height: 22px;
+}
+
 .console-entry-error {
     color: #FE874A;
 }
@@ -70,9 +78,13 @@
     border: none;
     outline: none;
     color: white;
-    font-family: "Inter", sans-serif;
+    font-family: inherit;
     width: 100%;
     align-content: center;
+    padding: 0;
+    border: 0;
+    line-height: 1;
+    transform: translateY(-1px);
 }
 
 

@@ -56,7 +56,7 @@ export default function Console() {
 
     // ---- AUTO SCROLL
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        bottomRef.current?.scrollIntoView({ behavior: "auto" });
     }, [consoleOutput, inputRequested]);
 
     // ---- RESET INPUT коли з'являється новий запит
@@ -146,7 +146,7 @@ export default function Console() {
 
             <div className="console-output scrollable text-font">
                 {consoleOutput.map((entry, i) => (
-                    <div key={`entry-${i}`} className={getEntryClass(entry.type)}>
+                    <div key={`entry-${i}`} className={`console-entry ${getEntryClass(entry.type)}`}>
                         {getEntryPrefix(entry.type)}
                         {entry.value}
                     </div>
